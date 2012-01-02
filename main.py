@@ -32,11 +32,13 @@ from kivy.config import Config
 Config.set('modules', 'keybinding', '')
 #Config.set('modules', 'inspector', '')
 from kivy.base import EventLoop
-from kivy.animation import Animation
-from kivy.properties import ObjectProperty, NumericProperty, StringProperty
+from kivy.properties import ObjectProperty, StringProperty
 
 from kivy.uix.image import Image
 from kivy.uix.widget import Widget
+from kivy.uix.floatlayout import FloatLayout
+
+from deflector import Deflector
 
 
 '''
@@ -53,30 +55,14 @@ VERSION = '1.0'
 # ---------------------------------------------------------
 
 
-
-
 '''
 ####################################
 ##
-##   Main Widget Class
+##   Background Image Class
 ##
 ####################################
 '''
-class DeflectouchWidget(Widget):
-    app = ObjectProperty(None)
-    version = StringProperty(VERSION)
-    
-    
-    '''
-    ####################################
-    ##
-    ##   Class Initialisation
-    ##
-    ####################################
-    '''
-    def __init__(self, **kwargs):
-        super(DeflectouchWidget, self).__init__(**kwargs) # don't know if this is necessary?
-        
+class Background(Image):
     
     '''
     ####################################
@@ -88,76 +74,129 @@ class DeflectouchWidget(Widget):
     def on_touch_down(self, touch):
         ud = touch.ud
         
-    
+        # the first time a touch occures, nothing happens. If a second finger is touching,
+        # create a deflector.
+        
+        # search for a lonely touch
+        
+        pairing_made = False        
+        for search_touch in EventLoop.touches[:]:
+            if 'lonely' in search_touch.ud:
+                # so here we have a second touch: make a pairing.
+                del search_touch.ud['lonely']
+                Deflector(touch1=ud, touch2=search_touch.ud)
+                pairing_made = True
+                print 'pairing made'
+        
+        if pairing_made == False:
+            # if no second touch was found: tag the actual one as 'lonely'
+            ud['lonely'] = True
+            print 'lonely touch'
+
+
+'''
+####################################
+##
+##   Tank Class
+##
+####################################
+'''
+class Tank(Widget):
     
     '''
     ####################################
     ##
-    ##   On Touch Move
+    ##   On Touch Down
     ##
     ####################################
     '''
-    def on_touch_move(self, touch):
+    def on_touch_down(self, touch):
         ud = touch.ud
         
+        # the first time a touch occures, nothing happens. If a second finger is touching,
+        # create a deflector.
+        
+        # search for a lonely touch
+        
+        pairing_made = False        
+        for search_touch in EventLoop.touches[:]:
+            if 'lonely' in search_touch.ud:
+                # so here we have a second touch: make a pairing.
+                del search_touch.ud['lonely']
+                Deflector(touch1=ud, touch2=search_touch.ud)
+                pairing_made = True
+                print 'pairing made'
+                break
+        
+        if pairing_made == False:
+            # if no second touch was found: tag the actual one as 'lonely'
+            ud['lonely'] = True
+            print 'lonely touch'
+
+
+'''
+####################################
+##
+##   Main Widget Class
+##
+####################################
+'''
+class DeflectouchWidget(FloatLayout):
+    app = ObjectProperty(None)
+    version = StringProperty(VERSION)
+    
+    fire_button = ObjectProperty(None)
+    reset_button = ObjectProperty(None)
+    menu_button = ObjectProperty(None)
     
     
     '''
     ####################################
     ##
-    ##   On Touch Up
+    ##   Class Initialisation
     ##
     ####################################
     '''
-    def on_touch_up(self, touch):
-        ud = touch.ud
+    def __init__(self, **kwargs):
+        super(DeflectouchWidget, self).__init__(**kwargs)
         
-    
+        self.background = Background()
+        self.add_widget(self.background)
+        
+        # after we added the background, we have to put the buttons on the top again:
+        self.remove_widget(self.fire_button)
+        self.add_widget(self.fire_button)
+        self.remove_widget(self.reset_button)
+        self.add_widget(self.reset_button)
+        self.remove_widget(self.menu_button)
+        self.add_widget(self.menu_button)
+        
+        self.rail_image = Image(
+            source='graphics/beta/rails_beta.png')
+        self.add_widget(self.rail_image)
+        
+        self.Tank = Tank(pos=(0,500))
+        self.add_widget(self.Tank)
+        
+        # PROBLEM: are the buttons visible? If not, the problem is that they're added first
+        # and afterwards the background image (which is then on top of the buttons)
+        
     
     '''
     ####################################
     ##
-    ##   Other GUI Events
+    ##   GUI Functions
     ##
     ####################################
     '''
+    def fire_button_pressed(self):
+        print 'fire!'
     
+    def reset_button_pressed(self):
+        print 'reset'
     
-    '''
-    ####################################
-    ##
-    ##   Graphical Functions
-    ##
-    ####################################
-    '''
-    def create_circle(self, touch):
-        # create the circle image
-        circle = Image(
-            source=self.app.config.get('Advanced', 'CircleImage'),
-            color=(.7, .85, 1, 1),
-            allow_stretch=True,
-            size=(self.app.config.getint('Advanced', 'CircleSize'), self.app.config.getint('Advanced', 'CircleSize')))
-        
-        # center the circle on the finger position
-        circle.x = touch.x - circle.size[0] / 2
-        circle.y = touch.y - circle.size[1] / 2
-        
-        self.add_widget(circle)
-        
-        # and just right fade it out after having displayed it
-        animation = Animation(
-            color=(.7, .85, 1, 0),
-            size=(self.app.config.getint('Advanced', 'CircleSize') * 2, self.app.config.getint('Advanced', 'CircleSize') * 2),
-            x=circle.pos[0] - (self.app.config.getint('Advanced', 'CircleSize')/2), # workaround for centering the image during resizing
-            y=circle.pos[1] - (self.app.config.getint('Advanced', 'CircleSize')/2), # workaround for centering the image during resizing
-            t='out_expo', duration=2)
-        
-        animation.start(circle)
-        animation.bind(on_complete=self.circle_fadeout_complete)
-    
-    def circle_fadeout_complete(self, animation, widget):
-        self.remove_widget(widget)
-        
+    def menu_button_pressed(self):
+        print 'menu'
 
 
 '''
@@ -185,8 +224,6 @@ class Deflectouch(App):
     
    
     def build_config(self, config):
-        # create the various section for the .ini settings file:
-        
         config.adddefaultsection('General')
         config.setdefault('General', 'Sound', 'On')
         config.setdefault('General', 'Music', 'On')
