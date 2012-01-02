@@ -1,0 +1,3 @@
+title=Deflectouch
+author=Cyril Stoller
+orientation=landscape

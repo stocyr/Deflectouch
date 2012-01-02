@@ -1,0 +1,47 @@
+## IcarusTouch# # Copyright (C) 2012  Cyril Stoller# # For comments, suggestions or other messages, contact me at:# <cyril.stoller@gmail.com># # This file is part of Deflectouch.# # Deflectouch is free software: you can redistribute it and/or modify# it under the terms of the GNU General Public License as published by# the Free Software Foundation, either version 3 of the License, or# (at your option) any later version.# # Deflectouch is distributed in the hope that it will be fun,# but WITHOUT ANY WARRANTY; without even the implied warranty of# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the# GNU General Public License for more details.# # You should have received a copy of the GNU General Public License# along with Deflectouch.  If not, see <http://www.gnu.org/licenses/>.##:kivy 1.0
+#:import kivy kivy#:import win kivy.core.window
+# Background image description:<Background>:	# Problem: I want the background image to have a size bigger than the screen	# so that images, that doesn't match the screen's ratio, don't leave a black bar.	# But even the full-size + stretch to the screen's dimension doesn't work...        # fill the entire screen with the background image    allow_stretch: True    keep_ratio: False    pos_hint: {'center_x':0.5}# Feedback wall image description:<Feedback>:    color: (1, 1, 1, root.transparency)# Keyboard ("main instrument" widget) description:<Keyboard>:	allow_stretch: True	keep_ratio: False	    # add a border including a shadow    canvas.before:        Color:            rgba: 1,1,1,1        #BorderImage:        #    source: 'images/shadow_145_white.png'        #    border: (root.border_width, root.border_width, root.border_width, root.border_width)        #    size: (self.width+root.border_width*2, self.height+root.border_width*2)        #	 pos: (self.x-root.border_width, self.y-root.border_width)        BorderImage:            source: 'images/Shadow+Border_38.png'            border: (38, 38, 38, 38)            size: (self.width+38*2, self.height+38*2)            pos: (self.x-38, self.y-38)# Root widget description:
+<IcarusTouchWidget>:    float_layout: float_layout
+    pitch_lock_button: pitch_lock_button
+    y_axis_volume_button: y_axis_volume_button
+    settings_button: settings_button    look_button: look_button
+        # all aligned widgets are children of the FloatLayout:
+    FloatLayout:    	id: float_layout
+        size: root.size
+                # Application name and Kivy Logo are on the top-left:
+        BoxLayout:
+            padding: 10
+            spacing: 10
+            size_hint: 1, None
+            pos_hint: {'top':1,}
+            height: 24
+            Image:
+                size_hint: None, None
+                size: 24, 24
+                source: 'data/logo/kivy-icon-32.png'
+            Label:
+                height: 24
+                text_size: self.size
+                color: (1, 1, 1, .8)
+                text: 'IcarusTouch v%s- Kivy %s' % (root.version, kivy.__version__)
+                # Copyright and author name are on the bottom-left:
+        Label:
+            height: 24
+            pos: 10, 10
+            text_size: self.size
+            color: (1, 1, 1, .8)
+            text: '© 2011 by Cyril Stoller'
+                # The two big buttons in the middle of the bottom:
+        BoxLayout:
+            spacing: 30
+            padding: 10
+            size_hint_y: 0.18            size_hint_x: None            width: 2*(self.height - 2*self.padding) + self.spacing + 2*self.padding
+            pos_hint: {'center_x':0.5}
+            ToggleButton:
+                id: pitch_lock_button                background_normal: 'images/Pitch_Unlocked.png'                background_down: 'images/Pitch_Locked.png'                on_press: root.on_pitch_lock_button_press()                state: 'down' if root.app.config.get('General', 'PitchLock') == 'On' else 'normal'                border: 0, 0, 0, 0
+            ToggleButton:
+                id: y_axis_volume_button
+                background_normal: 'images/X-Axis_mod.png'                background_down: 'images/X-Axis_vol.png'                on_press: root.on_y_axis_volume_button_press()                state: 'down' if root.app.config.get('General', 'YAxis') == 'Volume' else 'normal'                border: 0, 0, 0, 0
+                # The two little buttons on the bottom-right:
+        BoxLayout:            spacing: 15            padding: 10            size_hint_y: 0.15            size_hint_x: None            width: 2*(self.height - 2*self.padding) + self.spacing + 2*self.padding            pos_hint: {'right':1}            Button:                id: look_button                background_normal: 'images/Look.png'                background_down: 'images/Look.png'                on_press: root.open_my_settings_panel()                border: 0, 0, 0, 0            Button:                id: settings_button                background_normal: 'images/Settings.png'                background_down: 'images/Settings.png'                on_press: root.open_settings()                border: 0, 0, 0, 0                # Maybe we could also add an "Exit" button on the top-right?        #Button:        #	size_hint: None, None        #	width: root.width / 30        #	height: self.width        #	pos_hint: {'right':0.98, 'top': 0.95}        #	text: "X"        #	on_press: root.app.stop()
+# The custom settingspanel for the appearance settings:<MySettingsPanel>:    background_scroll_view_grid: background_scroll_view_grid    keyboard_scroll_view_box: keyboard_scroll_view_box    size: root.size	    # left panel containing the background images	ScrollView:	    size: 500, 700	    x: 32	    y: 32	    do_scroll_x: False	    #scroll_distance: 5	    #scroll_timeout: 250	    scroll_friction: 3	            # add the same border-shadow combination as on the keyboard	    canvas.before:	    	Color:	    		rgba: 1, 1, 1, 1	        BorderImage:	            source: 'images/Shadow+Border_38.png'	            border: (38, 38, 38, 38)	            size: (self.width+38*2, self.height+38*2)	            pos: (self.x-38, self.y-38)	            # the actual content: a gridLayout filled with the images	    GridLayout:	        id: background_scroll_view_grid	        cols: 2	        size_hint_y: None	        spacing: 10	                    # the background of the panel: dark, but half-transparent	        canvas:	            Color:	                rgba: 0, 0, 0, 0.7	            Rectangle:	                pos: self.pos	                size: self.size	    # right panel containing the keyboard images	ScrollView:	    size: 500, 700	    right: win.Window.width - 32	    y: 32	    do_scroll_x: False	    #scroll_distance: 5	    #scroll_timeout: 250	    scroll_friction: 2	            # add the same border-shadow combination as on the keyboard	    canvas.before:	    	Color:	    		rgba: 1, 1, 1, 1	        BorderImage:	            source: 'images/Shadow+Border_38.png'	            border: (38, 38, 38, 38)	            size: (self.width+38*2, self.height+38*2)	            pos: (self.x-38, self.y-38)	            # the actual contend: a boxLayout filled with the images	    BoxLayout:	        id: keyboard_scroll_view_box	        orientation: 'vertical'	        size_hint_y: None	        spacing: 10	                    # the background of the panel: dark, but half-transparent	        canvas:	            Color:	                rgba: 0, 0, 0, 0.7	            Rectangle:	                pos: self.pos	                size: self.size
