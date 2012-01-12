@@ -31,7 +31,6 @@ from kivy.uix.scatter import Scatter
 
 from kivy.graphics.transformation import Matrix
 from kivy.vector import Vector
-from math import radians
 from math import atan2
 
 
@@ -112,6 +111,26 @@ class Deflector(Scatter):
             # if not, keep the touch
             print 'no end point touched'
             return True
+    '''
+    
+    '''
+    ####################################
+    ##
+    ##   On Touch Up
+    ##
+    ####################################
+    '''
+    '''
+    def on_touch_up(self, touch):
+        # remove the two grabbed touches from the list
+        if self.touch1 in self._touches and self.touch1.grab_state:
+            self.touch1.ungrab(self)
+            del self._last_touch_pos[self.touch1]
+            self._touches.remove(self.touch1)
+        if self.touch2 in self._touches and self.touch2.grab_state:
+            self.touch2.ungrab(self)
+            del self._last_touch_pos[self.touch2]
+            self._touches.remove(self.touch2)
     '''
     
     '''

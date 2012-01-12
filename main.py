@@ -33,18 +33,17 @@ Config.set('modules', 'keybinding', '')
 #Config.set('modules', 'inspector', '')
 from kivy.base import EventLoop
 from kivy.properties import ObjectProperty, StringProperty
-from kivy.graphics.transformation import Matrix
 
 from kivy.uix.image import Image
 from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.scatter import Scatter
+
+from math import sin
+from math import cos
+from math import radians
 
 from deflector import Deflector
-
-from kivy.utils import boundary
-from math import radians
-from math import atan2
-from math import pi
+from tank import Tank
+from bullet import Bullet
 
 
 '''
@@ -56,9 +55,6 @@ from math import pi
 '''
 
 VERSION = '1.0'
-
-# Graphics
-# ---------------------------------------------------------
 
 
 '''
@@ -100,79 +96,7 @@ class Background(Image):
             #print 'lonely touch'
 
 
-'''
-####################################
-##
-##   Tank Class
-##
-####################################
-'''
-class Tank(Scatter):
-    tank_image = ObjectProperty(None)
-    tank_tower_scatter = ObjectProperty(None)
-    
-    '''
-    ####################################
-    ##
-    ##   On Touch Down
-    ##
-    ####################################
-    '''
-    def on_touch_down(self, touch):
-        #print self.bbox
-        if not self.collide_point(*touch.pos):
-            touch.ungrab(self)
-            return False
-        else:
-            touch.ud['tank_touch'] = True
-            return super(Tank, self).on_touch_down(touch)
-        
-        
-    
-    '''
-    ####################################
-    ##
-    ##   On Touch Move
-    ##
-    ####################################
-    '''
-    def on_touch_move(self, touch):
-        ud = touch.ud
-        
-        if 'tank_touch' in ud:
-            # Here comes the calculation for the tower-rotating
-            if 'tank_position' in ud:
-                # if the current touch is already in the 'rotate' mode, rotate the tower.
-                dx = touch.x - (ud['tank_position'][0] + 46)    # +46 -> the reference point is in the middle of the tank image.
-                dy = touch.y - (ud['tank_position'][1] + 75)    # +75 -> the reference point is in the middle of the tank image.
-                angle = boundary(atan2(dy, dx) * 360 / 2 / pi, -60, 60)
-                
-                angle_change = self.tank_tower_scatter.rotation - angle
-                rotation_matrix = Matrix().rotate(-radians(angle_change), 0, 0, 1)
-                self.tank_tower_scatter.apply_transform(rotation_matrix, post_multiply=True, anchor=(98, 38))
-                
-                #self.tank_tower_scatter.rotation = angle
-                #self.tank_tower_scatter.apply_transform(trans=Matrix().rotate(transform_angle, 0, 0, 1), post_multiply=True, anchor=(98, 38))
-            
-            elif touch.x > self.right:
-                # if the finger moved too far to the right go into rotation mode, remember where the rotation started and disable translation
-                ud['tank_position'] = self.pos + (46, 75)
-                self.do_translation_y = False
-            
-        return super(Tank, self).on_touch_move(touch)
-      
-    
-    '''
-    ####################################
-    ##
-    ##   On Touch Up
-    ##
-    ####################################
-    '''
-    def on_touch_up(self, touch):
-        # set translation_y to the initial state again
-        self.do_translation_y = True
-        return super(Tank, self).on_touch_up(touch)
+
             
 
 '''
@@ -228,14 +152,20 @@ class DeflectouchWidget(FloatLayout):
     ####################################
     '''
     def fire_button_pressed(self):
-        print 'fire!'
+        # create a bullet, calculate the start position and fire it.
+        tower_angle = radians(self.Tank.tank_tower_scatter.rotation)
+        tower_position = self.Tank.pos
+        bullet_position = (tower_position[0] + 46 + cos(tower_angle) * 130, tower_position[1] + 75 + sin(tower_angle) * 130)
+        self.bullet = Bullet(angle=tower_angle)
+        self.bullet.center = bullet_position
+        self.add_widget(self.bullet)
+        self.bullet.fire()
     
     def reset_button_pressed(self):
         print 'reset'
     
     def menu_button_pressed(self):
         print 'menu'
-        self.Tank.pos = (0, 0)
 
 
 '''
