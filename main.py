@@ -36,12 +36,12 @@ from kivy.properties import ObjectProperty, StringProperty
 from kivy.graphics.transformation import Matrix
 
 from kivy.uix.image import Image
-from kivy.uix.widget import Widget
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.scatter import Scatter
 
 from deflector import Deflector
 
+from kivy.utils import boundary
 from math import radians
 from math import atan2
 from math import pi
@@ -90,14 +90,14 @@ class Background(Image):
             if 'lonely' in search_touch.ud:
                 # so here we have a second touch: make a pairing.
                 del search_touch.ud['lonely']
-                Deflector(touch1=ud, touch2=search_touch.ud)
-                pairing_made = True
                 print 'pairing made'
+                self.add_widget(Deflector(touch1=search_touch, touch2=touch))
+                pairing_made = True
         
         if pairing_made == False:
             # if no second touch was found: tag the current one as 'lonely'
             ud['lonely'] = True
-            print 'lonely touch'
+            #print 'lonely touch'
 
 
 '''
@@ -119,10 +119,12 @@ class Tank(Scatter):
     ####################################
     '''
     def on_touch_down(self, touch):
-        print self.bbox
+        #print self.bbox
         if not self.collide_point(*touch.pos):
+            touch.ungrab(self)
             return False
         else:
+            touch.ud['tank_touch'] = True
             return super(Tank, self).on_touch_down(touch)
         
         
@@ -137,26 +139,26 @@ class Tank(Scatter):
     def on_touch_move(self, touch):
         ud = touch.ud
         
-        # Here comes the calculation for the tower-rotating
-        if 'tank_position' in ud:
-            # if the current touch is already in the 'rotate' mode, rotate the tower.
-            dx = touch.x - (ud['tank_position'][0] + 46)    # +46 -> the reference point is in the middle of the tank image.
-            dy = touch.y - (ud['tank_position'][1] + 75)    # +75 -> the reference point is in the middle of the tank image.
-            angle = kivy.utils.boundary(atan2(dy, dx) * 360 / 2 / pi, -60, 60)
+        if 'tank_touch' in ud:
+            # Here comes the calculation for the tower-rotating
+            if 'tank_position' in ud:
+                # if the current touch is already in the 'rotate' mode, rotate the tower.
+                dx = touch.x - (ud['tank_position'][0] + 46)    # +46 -> the reference point is in the middle of the tank image.
+                dy = touch.y - (ud['tank_position'][1] + 75)    # +75 -> the reference point is in the middle of the tank image.
+                angle = boundary(atan2(dy, dx) * 360 / 2 / pi, -60, 60)
+                
+                angle_change = self.tank_tower_scatter.rotation - angle
+                rotation_matrix = Matrix().rotate(-radians(angle_change), 0, 0, 1)
+                self.tank_tower_scatter.apply_transform(rotation_matrix, post_multiply=True, anchor=(98, 38))
+                
+                #self.tank_tower_scatter.rotation = angle
+                #self.tank_tower_scatter.apply_transform(trans=Matrix().rotate(transform_angle, 0, 0, 1), post_multiply=True, anchor=(98, 38))
             
-            angle_change = self.tank_tower_scatter.rotation - angle
-            rotation_matrix = Matrix().rotate(-radians(angle_change), 0, 0, 1)
-            self.tank_tower_scatter.apply_transform(rotation_matrix, post_multiply=True, anchor=(98, 38))
+            elif touch.x > self.right:
+                # if the finger moved too far to the right go into rotation mode, remember where the rotation started and disable translation
+                ud['tank_position'] = self.pos + (46, 75)
+                self.do_translation_y = False
             
-            #self.tank_tower_scatter.rotation = angle
-            #self.tank_tower_scatter.apply_transform(trans=Matrix().rotate(transform_angle, 0, 0, 1), post_multiply=True, anchor=(98, 38))
-        
-        elif touch.x > self.right:
-            # if the finger moved too far to the right go into rotation mode, remember where the rotation started and disable translation
-            ud['tank_position'] = self.pos + (46, 75)
-            self.do_translation_y = False
-            
-        
         return super(Tank, self).on_touch_move(touch)
       
     
