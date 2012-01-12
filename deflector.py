@@ -1,5 +1,5 @@
 '''
-IcarusTouch
+Deflectouch
 
 Copyright (C) 2012  Cyril Stoller
 

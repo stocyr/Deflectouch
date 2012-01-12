@@ -1,0 +1,5 @@
+
+- set initial tank position to the exact middle of the screen on the left.
+- problem: as soon as a touch is recognized, the PQ Labs screen sends *continuously* touch-move events! It doesn't matter if the touch is actually moving -
+  he just sends move events with the actual position... -> I now activated the jitter-post-proc engine with a jitter_distance of 0.001
+- the tank scatter has a bounding box of 100x100. I don't know where it's taking that from... AND: if i drag from within that bounding box, it doesn't always move!

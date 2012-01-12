@@ -1,5 +1,5 @@
 '''
-IcarusTouch
+Deflectouch
 
 Copyright (C) 2012  Cyril Stoller
 
@@ -33,12 +33,18 @@ Config.set('modules', 'keybinding', '')
 #Config.set('modules', 'inspector', '')
 from kivy.base import EventLoop
 from kivy.properties import ObjectProperty, StringProperty
+from kivy.graphics.transformation import Matrix
 
 from kivy.uix.image import Image
 from kivy.uix.widget import Widget
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.scatter import Scatter
 
 from deflector import Deflector
+
+from math import radians
+from math import atan2
+from math import pi
 
 
 '''
@@ -89,7 +95,7 @@ class Background(Image):
                 print 'pairing made'
         
         if pairing_made == False:
-            # if no second touch was found: tag the actual one as 'lonely'
+            # if no second touch was found: tag the current one as 'lonely'
             ud['lonely'] = True
             print 'lonely touch'
 
@@ -101,7 +107,9 @@ class Background(Image):
 ##
 ####################################
 '''
-class Tank(Widget):
+class Tank(Scatter):
+    tank_image = ObjectProperty(None)
+    tank_tower_scatter = ObjectProperty(None)
     
     '''
     ####################################
@@ -111,28 +119,59 @@ class Tank(Widget):
     ####################################
     '''
     def on_touch_down(self, touch):
+        print self.bbox
+        if not self.collide_point(*touch.pos):
+            return False
+        else:
+            return super(Tank, self).on_touch_down(touch)
+        
+        
+    
+    '''
+    ####################################
+    ##
+    ##   On Touch Move
+    ##
+    ####################################
+    '''
+    def on_touch_move(self, touch):
         ud = touch.ud
         
-        # the first time a touch occures, nothing happens. If a second finger is touching,
-        # create a deflector.
+        # Here comes the calculation for the tower-rotating
+        if 'tank_position' in ud:
+            # if the current touch is already in the 'rotate' mode, rotate the tower.
+            dx = touch.x - (ud['tank_position'][0] + 46)    # +46 -> the reference point is in the middle of the tank image.
+            dy = touch.y - (ud['tank_position'][1] + 75)    # +75 -> the reference point is in the middle of the tank image.
+            angle = kivy.utils.boundary(atan2(dy, dx) * 360 / 2 / pi, -60, 60)
+            
+            angle_change = self.tank_tower_scatter.rotation - angle
+            rotation_matrix = Matrix().rotate(-radians(angle_change), 0, 0, 1)
+            self.tank_tower_scatter.apply_transform(rotation_matrix, post_multiply=True, anchor=(98, 38))
+            
+            #self.tank_tower_scatter.rotation = angle
+            #self.tank_tower_scatter.apply_transform(trans=Matrix().rotate(transform_angle, 0, 0, 1), post_multiply=True, anchor=(98, 38))
         
-        # search for a lonely touch
+        elif touch.x > self.right:
+            # if the finger moved too far to the right go into rotation mode, remember where the rotation started and disable translation
+            ud['tank_position'] = self.pos + (46, 75)
+            self.do_translation_y = False
+            
         
-        pairing_made = False        
-        for search_touch in EventLoop.touches[:]:
-            if 'lonely' in search_touch.ud:
-                # so here we have a second touch: make a pairing.
-                del search_touch.ud['lonely']
-                Deflector(touch1=ud, touch2=search_touch.ud)
-                pairing_made = True
-                print 'pairing made'
-                break
-        
-        if pairing_made == False:
-            # if no second touch was found: tag the actual one as 'lonely'
-            ud['lonely'] = True
-            print 'lonely touch'
-
+        return super(Tank, self).on_touch_move(touch)
+      
+    
+    '''
+    ####################################
+    ##
+    ##   On Touch Up
+    ##
+    ####################################
+    '''
+    def on_touch_up(self, touch):
+        # set translation_y to the initial state again
+        self.do_translation_y = True
+        return super(Tank, self).on_touch_up(touch)
+            
 
 '''
 ####################################
@@ -175,11 +214,8 @@ class DeflectouchWidget(FloatLayout):
             source='graphics/beta/rails_beta.png')
         self.add_widget(self.rail_image)
         
-        self.Tank = Tank(pos=(0,500))
+        self.Tank = Tank(pos=(10, 600))
         self.add_widget(self.Tank)
-        
-        # PROBLEM: are the buttons visible? If not, the problem is that they're added first
-        # and afterwards the background image (which is then on top of the buttons)
         
     
     '''
@@ -197,6 +233,7 @@ class DeflectouchWidget(FloatLayout):
     
     def menu_button_pressed(self):
         print 'menu'
+        self.Tank.pos = (0, 0)
 
 
 '''
