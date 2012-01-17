@@ -13,3 +13,4 @@
 - check if the tanks anchor (used in tank.py and in main.py) and bullet position hypotenuse (in main/fire()) is correct
 - create labels: "level:" "lifes:"
 - possibility for collision check on levels: levels are built out of a pixel array. now we transform the bullets position down to the pixel-array and look, if it collides with a 'black' pixel or whatever.
+- settings: they keep not writing the GamePlay Variable into the ini file...

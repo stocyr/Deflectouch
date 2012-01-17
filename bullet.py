@@ -58,7 +58,7 @@ class Bullet(Image):
         
         # start the animation
         self.animation.start(self)
-        self.bind(self.animation.on_complete(self), self.on_collision_with_edge)
+        self.animation.bind(on_complete=self.on_collision_with_edge)
         
         # schedule the position change
         self.bind(pos=self.callback_pos)
@@ -66,7 +66,7 @@ class Bullet(Image):
     def create_animation(self, speed, destination):
         # create the animation
         # t = s/v -> v from 1 to 10 / unit-less
-        time = Vector(self.center).distance(destination) / (speed * 400)
+        time = Vector(self.center).distance(destination) / (speed * 70)
         return Animation(pos=destination, duration=time)
         
     def calc_destination(self, angle):
@@ -132,12 +132,11 @@ class Bullet(Image):
     
     def callback_pos(self, value, pos):
         # check here if the bullet collides with a deflector or an obstacle
-        print 'position: ', pos
-        print 'value: ', value
         
         # first check if there's a collision with deflectors:
         if not len(self.parent.deflector_list) == 0:
             for deflector in self.parent.deflector_list:
+                print 'line pos: ', deflector.deflector_line.pos, 'line size: ', deflector.deflector_line.size
                 if self.collide_widget(deflector.deflector_line):
                     # if the bullet collides with the deflector line of one of the deflectors,
                     # call on_collision_with_deflector and pass it the colliding instance
@@ -154,7 +153,7 @@ class Bullet(Image):
         #bind(animation, self.parent.bullet_died
         self.parent.bullet_died()
         
-    def on_collision_with_edge(self):
+    def on_collision_with_edge(self, animation, widget):
         print 'edge'
         self.fade_out()
     
@@ -164,7 +163,9 @@ class Bullet(Image):
     
     def on_collision_with_deflector(self, deflector):
         print 'deflector'
-        self.fade_out()
+        # calculate deflection_angle
+        # calculate new animation
+        # start animation
     
     def on_collision_with_goal(self):
         print 'goal'

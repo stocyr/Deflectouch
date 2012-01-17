@@ -87,13 +87,23 @@ class Background(Image):
                 # so here we have a second touch: make a pairing.
                 del search_touch.ud['lonely']
                 print 'pairing made'
-                self.parent.create_deflector(search_touch, touch)
+                self.create_deflector(search_touch, touch)
                 pairing_made = True
         
         if pairing_made == False:
             # if no second touch was found: tag the current one as 'lonely'
             ud['lonely'] = True
             #print 'lonely touch'
+    
+    def create_deflector(self, touch_1, touch_2):
+        deflector = Deflector(touch1=touch_1, touch2=touch_2)
+        self.parent.deflector_list.append(deflector)
+        self.add_widget(deflector)
+    
+    def delete_deflector(self, deflector):
+        self.remove_widget(deflector)
+        self.deflector_list.remove(deflector)
+        del deflector
 
 
 
@@ -184,15 +194,6 @@ class DeflectouchWidget(FloatLayout):
     ##
     ####################################
     '''
-    def create_deflector(self, touch1, touch2):
-        deflector = Deflector(touch1, touch2)
-        self.deflector_list.append(deflector)
-        self.add_widget(deflector)
-    
-    def delete_deflector(self, deflector):
-        self.remove_widget(deflector)
-        self.deflector_list.remove(deflector)
-        del deflector
     
     def bullet_died(self):
         self.remove_widget(self.bullet)
@@ -230,7 +231,7 @@ class Deflectouch(App):
         config.setdefault('General', 'Music', 'On')
         
         config.adddefaultsection('GamePlay')
-        config.setdefault('GamePlay', 'BulletSpeed', '1')
+        config.setdefault('GamePlay', 'BulletSpeed', '10')
     
 
 
