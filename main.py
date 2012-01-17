@@ -87,7 +87,7 @@ class Background(Image):
                 # so here we have a second touch: make a pairing.
                 del search_touch.ud['lonely']
                 print 'pairing made'
-                self.add_widget(Deflector(touch1=search_touch, touch2=touch))
+                self.parent.create_deflector(search_touch, touch)
                 pairing_made = True
         
         if pairing_made == False:
@@ -113,6 +113,10 @@ class DeflectouchWidget(FloatLayout):
     fire_button = ObjectProperty(None)
     reset_button = ObjectProperty(None)
     menu_button = ObjectProperty(None)
+    
+    bullet = None
+    
+    deflector_list = []
     
     
     '''
@@ -152,6 +156,11 @@ class DeflectouchWidget(FloatLayout):
     ####################################
     '''
     def fire_button_pressed(self):
+        if self.bullet:
+            # if there is already a bullet existing (which means it's flying around or exploding somewhere)
+            # don't fire.
+            return
+        
         # create a bullet, calculate the start position and fire it.
         tower_angle = radians(self.Tank.tank_tower_scatter.rotation)
         tower_position = self.Tank.pos
@@ -166,6 +175,29 @@ class DeflectouchWidget(FloatLayout):
     
     def menu_button_pressed(self):
         print 'menu'
+    
+    
+    '''
+    ####################################
+    ##
+    ##   Game Play Functions
+    ##
+    ####################################
+    '''
+    def create_deflector(self, touch1, touch2):
+        deflector = Deflector(touch1, touch2)
+        self.deflector_list.append(deflector)
+        self.add_widget(deflector)
+    
+    def delete_deflector(self, deflector):
+        self.remove_widget(deflector)
+        self.deflector_list.remove(deflector)
+        del deflector
+    
+    def bullet_died(self):
+        self.remove_widget(self.bullet)
+        self.bullet = None
+        # or should i write del self.bullet ?
 
 
 '''
@@ -196,6 +228,9 @@ class Deflectouch(App):
         config.adddefaultsection('General')
         config.setdefault('General', 'Sound', 'On')
         config.setdefault('General', 'Music', 'On')
+        
+        config.adddefaultsection('GamePlay')
+        config.setdefault('GamePlay', 'BulletSpeed', '1')
     
 
 
