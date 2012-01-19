@@ -28,7 +28,7 @@ kivy.require('1.0.9')
 
 from kivy.properties import ObjectProperty
 from kivy.graphics.transformation import Matrix
-from kivy.uix.scatter import Scatter
+from kivy.uix.image import Image
 
 from kivy.utils import boundary
 from math import radians
@@ -42,8 +42,7 @@ from math import pi
 ##
 ####################################
 '''
-class Tank(Scatter):
-    tank_image = ObjectProperty(None)
+class Tank(Image):
     tank_tower_scatter = ObjectProperty(None)
     
     '''
@@ -54,14 +53,13 @@ class Tank(Scatter):
     ####################################
     '''
     def on_touch_down(self, touch):
-        #print self.bbox
-        if not self.collide_point(*touch.pos):
-            touch.ungrab(self)
-            return False
-        else:
-            touch.ud['tank_touch'] = True
-            return super(Tank, self).on_touch_down(touch)
-        
+        #if not self.collide_point(*touch.pos):
+        #    touch.ungrab(self)
+        #    return False
+        #else:
+        print 'tank'
+        touch.ud['tank_touch'] = True
+        #return super(Tank, self).on_touch_down(touch)
         
     
     '''
@@ -94,7 +92,11 @@ class Tank(Scatter):
                 ud['tank_position'] = self.pos
                 self.do_translation_y = False
             
-        return super(Tank, self).on_touch_move(touch)
+            else:
+                print 'move'
+                # if 'normal' dragging (up and down) is performed, do it: 
+                self.y += touch.dy
+                print touch.dy
       
     
     '''
@@ -105,6 +107,5 @@ class Tank(Scatter):
     ####################################
     '''
     def on_touch_up(self, touch):
-        # set translation_y to the initial state again
-        self.do_translation_y = True
-        return super(Tank, self).on_touch_up(touch)
+        pass
+

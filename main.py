@@ -35,7 +35,7 @@ from kivy.base import EventLoop
 from kivy.properties import ObjectProperty, StringProperty
 
 from kivy.uix.image import Image
-from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.widget import Widget
 
 from math import sin
 from math import cos
@@ -116,7 +116,7 @@ class Background(Image):
 ##
 ####################################
 '''
-class DeflectouchWidget(FloatLayout):
+class DeflectouchWidget(Widget):
     app = ObjectProperty(None)
     version = StringProperty(VERSION)
     

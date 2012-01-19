@@ -16,4 +16,5 @@
 - settings: they keep not writing the GamePlay Variable into the ini file...
 - register all the classes with Factory.register -> initialize the widget tree entirely in the kv file
 - deflector = completeley build it with canvas instructions
-- change deflector and tank classes from scatter to Widget classes
+- change deflector classe from scatter to Widget classes
+- tank bug: tower goes not with its roots position
