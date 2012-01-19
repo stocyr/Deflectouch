@@ -151,7 +151,10 @@ class DeflectouchWidget(FloatLayout):
         self.add_widget(self.menu_button)
         
         self.rail_image = Image(
-            source='graphics/beta/rails_beta.png')
+            source='graphics/beta/rails_beta.png',
+            pos=(27, 0),
+            size_hint=(None,None),
+            size=(66,1200))
         self.add_widget(self.rail_image)
         
         self.Tank = Tank(pos=(10, 600))

@@ -14,3 +14,6 @@
 - create labels: "level:" "lifes:"
 - possibility for collision check on levels: levels are built out of a pixel array. now we transform the bullets position down to the pixel-array and look, if it collides with a 'black' pixel or whatever.
 - settings: they keep not writing the GamePlay Variable into the ini file...
+- register all the classes with Factory.register -> initialize the widget tree entirely in the kv file
+- deflector = completeley build it with canvas instructions
+- change deflector and tank classes from scatter to Widget classes
