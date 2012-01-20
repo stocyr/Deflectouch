@@ -197,8 +197,8 @@ class Bullet(Image):
     def on_collision_with_deflector(self, deflector, deflector_vector):
         print 'deflector'
         # flash up the deflector
-        deflector.color = (1, 1, 1, 1)
-        Animation(color=(0, 0, 1, 1), duration=1, t='out_expo').start(deflector)
+        deflector.color = (1, 1, 1)
+        Animation(color=(0, 0, 1), duration=1, t='out_expo').start(deflector)
         
         # calculate deflection angle
         impact_angle = (radians(deflector_vector.angle(Vector(1, 0))) % pi) - (self.angle % pi)

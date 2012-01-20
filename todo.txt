@@ -1,20 +1,13 @@
-- add description of github repository
 - set initial tank position to the exact middle of the screen on the left.
 - problem: as soon as a touch is recognized, the PQ Labs screen sends *continuously* touch-move events! It doesn't matter if the touch is actually moving -
   he just sends move events with the actual position... -> I now activated the jitter-post-proc engine with a jitter_distance of 0.001
-- the tank scatter has a bounding box of 100x100. I don't know where it's taking that from... AND: if i drag from within that bounding box, it doesn't always move!
-  --> problem might be that i arrange the two widgets on the tank but the scatter above does not adjust its bounding box so it takes only default-values...
-- let the "mirror stock" bar change its size smoothly when a new mirror is placed or an old mirror is removed -> use utils.transision OR an animation
-- the deflector scatter also scales the size of both the end_points and the thickness of the line in between.
+- let the "mirror stock" bar change its size smoothly when a new mirror is placed or an old mirror is removed -> use utils.transision OR an animation (bounce :P)
 - game level data: consists of a picture, every pixel is a brick. While loading the level graphical, i draw a polygon around the edges (start-finding algorithm: begin on a outside and move to the center. if found, just follow.)
-- collision detection: 1) on every on_progress 2) with Clock.schedule_interval 3) with Clock.schedule_interval(0) i check if the ball-widget is inside the polygon.
 - settings: music, sound
 - help-page: manage in the app-class (like on touchLay)
-- check if the tanks anchor (used in tank.py and in main.py) and bullet position hypotenuse (in main/fire()) is correct
-- create labels: "level:" "lifes:"
 - possibility for collision check on levels: levels are built out of a pixel array. now we transform the bullets position down to the pixel-array and look, if it collides with a 'black' pixel or whatever.
 - settings: they keep not writing the GamePlay Variable into the ini file...
-- register all the classes with Factory.register -> initialize the widget tree entirely in the kv file
 - deflector = completeley build it with canvas instructions
-- change deflector class from scatter to Widget classes
 - bug: wird das rohr nicht genau auf 0 eingestellt, verändert sich das nächste mal die tower-position abhängig vom rohrwinkel
+- set up the whole window as a fixed size (1024x768) fullscreen with black border
+- set github repository description
