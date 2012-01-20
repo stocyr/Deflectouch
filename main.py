@@ -33,6 +33,7 @@ Config.set('modules', 'keybinding', '')
 #Config.set('modules', 'inspector', '')
 from kivy.base import EventLoop
 from kivy.properties import ObjectProperty, StringProperty
+from kivy.factory import Factory
 
 from kivy.uix.image import Image
 from kivy.uix.widget import Widget
@@ -127,38 +128,6 @@ class DeflectouchWidget(Widget):
     bullet = None
     
     deflector_list = []
-    
-    
-    '''
-    ####################################
-    ##
-    ##   Class Initialisation
-    ##
-    ####################################
-    '''
-    def __init__(self, **kwargs):
-        super(DeflectouchWidget, self).__init__(**kwargs)
-        
-        self.background = Background()
-        self.add_widget(self.background)
-        
-        # after we added the background, we have to put the buttons on the top again:
-        self.remove_widget(self.fire_button)
-        self.add_widget(self.fire_button)
-        self.remove_widget(self.reset_button)
-        self.add_widget(self.reset_button)
-        self.remove_widget(self.menu_button)
-        self.add_widget(self.menu_button)
-        
-        self.rail_image = Image(
-            source='graphics/beta/rails_beta.png',
-            pos=(27, 0),
-            size_hint=(None,None),
-            size=(66,1200))
-        self.add_widget(self.rail_image)
-        
-        self.Tank = Tank(pos=(10, 600))
-        self.add_widget(self.Tank)
         
     
     '''
@@ -175,8 +144,8 @@ class DeflectouchWidget(Widget):
             return
         
         # create a bullet, calculate the start position and fire it.
-        tower_angle = radians(self.Tank.tank_tower_scatter.rotation)
-        tower_position = self.Tank.pos
+        tower_angle = radians(self.tank.tank_tower_scatter.rotation)
+        tower_position = self.tank.pos
         bullet_position = (tower_position[0] + 46 + cos(tower_angle) * 130, tower_position[1] + 75 + sin(tower_angle) * 130)
         self.bullet = Bullet(angle=tower_angle)
         self.bullet.center = bullet_position
@@ -202,6 +171,10 @@ class DeflectouchWidget(Widget):
         self.remove_widget(self.bullet)
         self.bullet = None
         # or should i write del self.bullet ?
+
+
+Factory.register("Tank", Tank)
+Factory.register("Background", Background)
 
 
 '''
