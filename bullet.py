@@ -56,11 +56,11 @@ class Bullet(Image):
     def fire(self):
         destination = self.calc_destination(self.angle)
         speed = boundary(self.parent.app.config.getint('GamePlay', 'BulletSpeed'), 1, 10)
-        animation = self.create_animation(speed, destination)
+        self.animation = self.create_animation(speed, destination)
         
         # start the animation
-        animation.start(self)
-        animation.bind(on_complete=self.on_collision_with_edge)
+        self.animation.start(self)
+        self.animation.bind(on_complete=self.on_collision_with_edge)
         
         # start to track the position changes
         self.bind(pos=self.callback_pos)
@@ -157,9 +157,21 @@ class Bullet(Image):
             return False
         
         # now we finally check if the bullet is close enough to the deflector line:
-        distance = sin(radians(bullet_direction.angle(deflector_vector) % (pi/4))) * Vector(bullet_position - intersection).length()
+        distance = sin(radians(bullet_direction.angle(deflector_vector)) % (pi/4)) * Vector(bullet_position - intersection).length()
         if distance < (self.width / 2):
             # there is a collision!
+            '''
+            print 'bullet_position: ' , bullet_position
+            print 'bullet_direction: ' , bullet_direction
+            print 'deflector_vector: ' , deflector_vector
+            print 'intersection: ' , intersection
+            print 'distance: ' , distance 
+            self.animation.stop(self)
+            '''
+            # kill the animation!
+            self.animation.unbind(on_complete=self.on_collision_with_edge)
+            self.animation.stop(self)
+            # call the collision handler
             self.on_collision_with_deflector(deflector, deflector_vector)
             
         
@@ -170,7 +182,7 @@ class Bullet(Image):
         # first check if there's a collision with deflectors:
         if not len(self.parent.deflector_list) == 0:
             for deflector in self.parent.deflector_list:
-                if self.collide_widget(deflector):
+                if deflector.collide_widget(self):
                     # if the bullet collides with the bounding box of a deflector
                     # call check_deflector_collision and pass it the colliding instance
                     self.check_deflector_collision(deflector)
@@ -187,6 +199,7 @@ class Bullet(Image):
         self.parent.bullet_died()
         
     def on_collision_with_edge(self, animation, widget):
+        self.unbind(pos=self.callback_pos)
         print 'edge'
         self.bullet_fade_out()
     
@@ -196,6 +209,7 @@ class Bullet(Image):
     
     def on_collision_with_deflector(self, deflector, deflector_vector):
         print 'deflector'
+        
         # flash up the deflector
         deflector.color = (1, 1, 1)
         Animation(color=(0, 0, 1), duration=1, t='out_expo').start(deflector)
@@ -206,11 +220,11 @@ class Bullet(Image):
         
         destination = self.calc_destination(self.angle)
         speed = boundary(self.parent.app.config.getint('GamePlay', 'BulletSpeed'), 1, 10)
-        animation = self.create_animation(speed, destination)
+        self.animation = self.create_animation(speed, destination)
         
         # start the animation
-        animation.start(self)
-        animation.bind(on_complete=self.on_collision_with_edge)
+        self.animation.start(self)
+        self.animation.bind(on_complete=self.on_collision_with_edge)
     
     def on_collision_with_goal(self):
         print 'goal'
