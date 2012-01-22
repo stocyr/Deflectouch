@@ -9,5 +9,5 @@
 - settings: they keep not writing the GamePlay Variable into the ini file...
 - deflector = completeley build it with canvas instructions
 - bug: wird das rohr nicht genau auf 0 eingestellt, verändert sich das nächste mal die tower-position abhängig vom rohrwinkel
-- set up the whole window as a fixed size (1024x768) fullscreen with black border
+- set up the whole window as a fixed size (1024x768) fullscreen with black border -> set kivy settings on top of the main file
 - set github repository description

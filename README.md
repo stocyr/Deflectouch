@@ -17,7 +17,12 @@ heavily summarized version of the above one.
 
 
 How to play
---------------------
+-----------
+
+
+How to design own levels
+------------------------
+
 
 
 Copyright and Contact

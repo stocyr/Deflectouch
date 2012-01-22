@@ -42,6 +42,9 @@ from math import sin
 from math import cos
 from math import radians
 
+from random import randint
+
+
 from deflector import Deflector
 from tank import Tank
 from bullet import Bullet
@@ -128,6 +131,7 @@ class DeflectouchWidget(Widget):
     bullet = None
     
     deflector_list = []
+    obstacle_list = []
         
     
     '''
@@ -157,6 +161,7 @@ class DeflectouchWidget(Widget):
     
     def menu_button_pressed(self):
         print 'menu'
+        self.build_level()
     
     
     '''
@@ -171,6 +176,46 @@ class DeflectouchWidget(Widget):
         self.remove_widget(self.bullet)
         self.bullet = None
         # or should i write del self.bullet ?
+    
+    def build_level(self):
+        # first load the text file in where the level is stored
+        level_file = open('level01.lvl', 'r')
+        offset = [200, 130]
+        brick_dim = [58, 58]
+        
+        line_cnt = 0
+        for line in level_file:
+            for row in range(17):
+                char = line[row]
+                #print char
+                
+                if char == '1':
+                    # create obstacle brick
+                    image = Image(source=('graphics/beta/brick' + str(randint(1, 4)) + '.png'),
+                                  x = offset[0] + row * brick_dim[0],
+                                  y = offset[1] + (16-line_cnt) * brick_dim[0],
+                                  size = (brick_dim[0], brick_dim[1]),
+                                  allow_stretch = True)
+                    self.obstacle_list.append(image)
+                    self.add_widget(image)
+                    pass
+                
+                elif char == 'R':
+                    # create goal heading to the right
+                    pass
+                
+                elif char == 'L':
+                    # create goal heading to the left
+                    pass
+                
+                elif char == 'U':
+                    # create goal heading to the up
+                    pass
+                
+                elif char == 'D':
+                    # create goal heading to the down
+                    pass
+            line_cnt += 1
 
 
 Factory.register("Tank", Tank)
