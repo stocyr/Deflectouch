@@ -64,6 +64,7 @@ class Bullet(Image):
         
         # start to track the position changes
         self.bind(pos=self.callback_pos)
+        
     
     def create_animation(self, speed, destination):
         # create the animation
@@ -74,10 +75,10 @@ class Bullet(Image):
     def calc_destination(self, angle):
         # calculate the path until the bullet hits the edge of the screen
         win = self.get_parent_window()
-        left = 102
-        right = win.width - 20
-        top = win.height - 20
-        bottom = 20
+        left = 130
+        right = win.width - 144
+        top = win.height - 23
+        bottom = 96
         
         bullet_x_to_right = right - self.center_x
         bullet_x_to_left = left - self.center_x
@@ -126,7 +127,7 @@ class Bullet(Image):
                 destination_y = boundary(tan(self.angle) * bullet_x_to_right, bullet_y_to_bottom, bullet_y_to_top)
             
         
-        
+        # because all of the calculations above were relative, add the bullet position to it.
         destination_x += self.center_x
         destination_y += self.center_y
         
@@ -179,7 +180,13 @@ class Bullet(Image):
         
     
     def callback_pos(self, value, pos):
-        # check here if the bullet collides with a deflector or an obstacle
+        # to prevent some strange exception errors:
+        if self == None:
+            return
+        
+        # check here if the bullet collides with a deflector, an obstacle or the goal
+        # (edge collision detection is irrelevant - the edge is where the bullet animation ends
+        # and therefor a callback is raised then)
         
         # first check if there's a collision with deflectors:
         if not len(self.parent.deflector_list) == 0:
@@ -193,21 +200,27 @@ class Bullet(Image):
         
         
         # then check if there's a collision with obstacles:
-        
+        if not len(self.parent.obstacle_list) == 0:
+            for obstacle in self.parent.obstacle_list:
+                if self.collide_widget(obstacle):
+                    self.on_collision_with_obstacle()
     
-    def bullet_fade_out(self):
-        # create fade-out animation
+    def bullet_explode(self):
+        self.unbind(pos=self.callback_pos)
+        self.animation.unbind(on_complete=self.on_collision_with_edge)
+        self.animation.stop(self)
+        
+        # create an explosion animation
         #bind(animation, self.parent.bullet_died
         self.parent.bullet_died()
         
     def on_collision_with_edge(self, animation, widget):
-        self.unbind(pos=self.callback_pos)
         print 'edge'
-        self.bullet_fade_out()
+        self.bullet_explode()
     
     def on_collision_with_obstacle(self):
         print 'obstacle'
-        self.bullet_fade_out()
+        self.bullet_explode()
     
     def on_collision_with_deflector(self, deflector, deflector_vector):
         print 'deflector'
@@ -230,7 +243,7 @@ class Bullet(Image):
     
     def on_collision_with_goal(self):
         print 'goal'
-        self.bullet_fade_out()
+        self.bullet_explode()
         
         
         

@@ -60,6 +60,12 @@ from bullet import Bullet
 
 VERSION = '1.0'
 
+LEVEL_WIDTH = 17
+LEVEL_HEIGHT = 16
+
+LEVEL_OFFSET = [400, 50]
+BRICK_WIDTH = 65
+
 
 '''
 ####################################
@@ -161,7 +167,7 @@ class DeflectouchWidget(Widget):
     
     def menu_button_pressed(self):
         print 'menu'
-        self.build_level()
+        self.load_level()
     
     
     '''
@@ -177,45 +183,32 @@ class DeflectouchWidget(Widget):
         self.bullet = None
         # or should i write del self.bullet ?
     
-    def build_level(self):
-        # first load the text file in where the level is stored
-        level_file = open('level01.lvl', 'r')
-        offset = [200, 130]
-        brick_dim = [58, 58]
+    def load_level(self):
+        # First of all, delete the old level:
+        for obstacle in self.obstacle_list:
+            self.remove_widget(obstacle)
+        self.obstacle_list = []
         
-        line_cnt = 0
-        for line in level_file:
-            for row in range(17):
-                char = line[row]
-                #print char
+        # Then load the text file in where the level is stored
+        level_image = kivy.core.image.Image.load('levels/level01.png', keep_data=True)
+        
+        for x in range(LEVEL_WIDTH):
+            for y in range(LEVEL_HEIGHT):
+                color = level_image.read_pixel(x, y)
                 
-                if char == '1':
-                    # create obstacle brick
+                if color == [0, 0, 0, 1]:
+                    # create obstacle brick on white pixels
                     image = Image(source=('graphics/beta/brick' + str(randint(1, 4)) + '.png'),
-                                  x = offset[0] + row * brick_dim[0],
-                                  y = offset[1] + (16-line_cnt) * brick_dim[0],
-                                  size = (brick_dim[0], brick_dim[1]),
+                                  x = LEVEL_OFFSET[0] + x * BRICK_WIDTH,
+                                  y = LEVEL_OFFSET[1] + (16-y) * BRICK_WIDTH,
+                                  size = (BRICK_WIDTH, BRICK_WIDTH),
                                   allow_stretch = True)
                     self.obstacle_list.append(image)
                     self.add_widget(image)
-                    pass
                 
-                elif char == 'R':
-                    # create goal heading to the right
+                elif color == [0, 0, 1, 1]:
+                    # create a goal brick on blue pixels
                     pass
-                
-                elif char == 'L':
-                    # create goal heading to the left
-                    pass
-                
-                elif char == 'U':
-                    # create goal heading to the up
-                    pass
-                
-                elif char == 'D':
-                    # create goal heading to the down
-                    pass
-            line_cnt += 1
 
 
 Factory.register("Tank", Tank)
