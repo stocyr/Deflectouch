@@ -93,10 +93,12 @@ class Deflector(Scatter):
         #self.size = (abs(self.touch2.x - self.touch1.x), abs(self.touch2.y - self.touch1.y))
         
         # Now we finally grab both touches we received
+        '''
         self.touch1.grab(self)
         self.touch1.ud['end_point'] = 1
         self.touch2.grab(self)
         self.touch2.ud['end_point'] = 2
+        '''
     
     def collide_widget(self, wid):
         if max(self.point1.pos[0], self.point2.pos[0]) < wid.x:
@@ -121,6 +123,7 @@ class Deflector(Scatter):
     ##
     ####################################
     '''
+    '''
     def on_touch_down(self, touch):
         
         if not self.collide_point(*touch.pos):
@@ -141,6 +144,7 @@ class Deflector(Scatter):
             # if not, keep the touch
             print 'canvas touched'
             return False
+    '''
     
     '''
     ####################################
@@ -148,6 +152,7 @@ class Deflector(Scatter):
     ##   On Touch Move
     ##
     ####################################
+    '''
     '''
     def on_touch_move(self, touch):
         ud = touch.ud
@@ -164,7 +169,7 @@ class Deflector(Scatter):
                     self.point2.pos = (touch.x - 20, touch.y - 20)
                     self.deflector_line.points[2] = touch.x
                     self.deflector_line.points[3] = touch.y
-        
+    '''
     
     '''
     ####################################
@@ -173,13 +178,14 @@ class Deflector(Scatter):
     ##
     ####################################
     '''
+    '''
     def on_touch_up(self, touch):
         # remove the two grabbed touches from the list
         if self.touch1.grab_state:
             self.touch1.ungrab(self)
         if self.touch2.grab_state:
             self.touch2.ungrab(self)
-    
+    '''
     
     '''
     ####################################

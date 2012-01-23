@@ -150,14 +150,16 @@ class Bullet(Image):
         # now we want to proof if the bullet comes from the 'right' side.
         # Because it's possible that the bullet is colliding with the deflectors bounding box but
         # would miss / has already missed the deflector line.
-        # We do that by checking if the intersection point is BEHIND the bullet position.
-        # ('behind' means the bullet direction points AWAY from the intersection point)
-        if bullet_direction.angle(intersection - bullet_position) == pi:
+        # We do that by checking if the expected intersection point is BEHIND the bullet position.
+        # ('behind' means the bullets direction vector points AWAY from the vector 
+        # [bullet -> intersection]. That also means the angle between these two vectors is not 0
+        # -> due to some math-engine-internal inaccuracies, i have to check if the angle is greater than one:
+        if abs(bullet_direction.angle(intersection - bullet_position)) > 1:
             # if the bullet missed the line already - NO COLLISION
             return False
         
         # now we finally check if the bullet is close enough to the deflector line:
-        distance = sin(radians(bullet_direction.angle(deflector_vector)) % (pi/4)) * Vector(bullet_position - intersection).length()
+        distance = abs(sin(radians(bullet_direction.angle(deflector_vector)) % (pi/2))) * Vector(intersection - bullet_position).length()
         if distance < (self.width / 2):
             # there is a collision!
             '''
