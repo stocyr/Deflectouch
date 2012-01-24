@@ -31,7 +31,6 @@ from kivy.config import Config
 # for making screenshots with F12:
 Config.set('modules', 'keybinding', '')
 #Config.set('modules', 'inspector', '')
-from kivy.base import EventLoop
 from kivy.properties import ObjectProperty, StringProperty
 from kivy.factory import Factory
 
@@ -45,7 +44,7 @@ from math import radians
 from random import randint
 
 
-from deflector import Deflector
+from background import Background
 from tank import Tank
 from bullet import Bullet
 
@@ -65,57 +64,6 @@ LEVEL_HEIGHT = 16
 
 LEVEL_OFFSET = [400, 50]
 BRICK_WIDTH = 65
-
-
-'''
-####################################
-##
-##   Background Image Class
-##
-####################################
-'''
-class Background(Image):
-    
-    '''
-    ####################################
-    ##
-    ##   On Touch Down
-    ##
-    ####################################
-    '''
-    def on_touch_down(self, touch):
-        ud = touch.ud
-        
-        # the first time a touch occures, nothing happens. If a second finger is touching,
-        # create a deflector.
-        
-        # search for a lonely touch
-        
-        pairing_made = False        
-        for search_touch in EventLoop.touches[:]:
-            if 'lonely' in search_touch.ud:
-                # so here we have a second touch: make a pairing.
-                del search_touch.ud['lonely']
-                print 'pairing made'
-                self.create_deflector(search_touch, touch)
-                pairing_made = True
-        
-        if pairing_made == False:
-            # if no second touch was found: tag the current one as 'lonely'
-            ud['lonely'] = True
-            #print 'lonely touch'
-    
-    def create_deflector(self, touch_1, touch_2):
-        deflector = Deflector(touch1=touch_1, touch2=touch_2)
-        self.parent.deflector_list.append(deflector)
-        self.add_widget(deflector)
-    
-    def delete_deflector(self, deflector):
-        self.remove_widget(deflector)
-        self.deflector_list.remove(deflector)
-        del deflector
-
-
 
             
 

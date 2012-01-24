@@ -7,5 +7,4 @@
 - set up the whole window as a fixed size (1024x768) fullscreen with black border -> set kivy settings on top of the main file
 - set github repository description
 - bug: horizontal deflector, hit from above, does not deflect!
-- goal: brick with a little bigger size who is transparent.
-- nach einem obstacle collision wird immer noch ein pos-change callback ausgeführt. nach einem edge collision aber (richtigerweise) nicht...
+- licht am ende des tunnels: man kann im kv-file ein rechteck auch rotieren: s. 184

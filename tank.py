@@ -93,4 +93,5 @@ class Tank(Widget):
         else:
             # if 'normal' dragging (up and down) is performed, do it: 
             self.y += touch.dy
+            pass
 

@@ -179,7 +179,7 @@ class Bullet(Image):
             
         
     
-    def callback_pos(self, value, pos):
+    def callback_pos(self, instance, pos):
         # to prevent some strange exception errors:
         if self == None:
             return

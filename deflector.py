@@ -26,7 +26,8 @@ along with Deflectouch.  If not, see <http://www.gnu.org/licenses/>.
 import kivy
 kivy.require('1.0.9')
 
-from kivy.properties import ObjectProperty
+from kivy.graphics import Line, Color
+from kivy.properties import ObjectProperty, NumericProperty
 from kivy.uix.scatter import Scatter
 
 from kivy.graphics.transformation import Matrix
@@ -38,8 +39,8 @@ class Deflector(Scatter):
     touch1 = ObjectProperty(None)
     touch2 = ObjectProperty(None)
     
-    end_point1 = ObjectProperty(None) # refers to the end point IMAGES.
-    end_point2 = ObjectProperty(None)
+    point1 = ObjectProperty(None)
+    point2 = ObjectProperty(None)
     
     deflector_line = ObjectProperty(None)
     
@@ -53,22 +54,28 @@ class Deflector(Scatter):
     def __init__(self, **kwargs):
         super(Deflector, self).__init__(**kwargs)
         
+        # DEFLECTOR LINE:
         # Here I rotate and translate the deflector line so that it lays exactly under the two fingers
         # and can be moved and scaled by scatter from now on. Thus I also have to pass the touches to scatter.
+        # First i create the line perfectly horizontal but with the correct length. Then i add the two
+        # drag points at the beginning and the end.
         
-        # size:
-        finger_distance = Vector(self.touch1.pos).distance(self.touch2.pos)
-        self.deflector_line.size = (finger_distance, 0) # -> does that work?
         
-        # position:
-        # First I set the one end point to the first touch, then
-        # I'm gonna rotate it arround the position of the first touch, so that it will arrive at the other touch.
-        # possible problem: the above scatter won't then adjust its bounding box and so on... --> same prob as with the tank scatter.
-        self.deflector_line.pos = self.touch1.pos
+        # line length:
+        self.lenght = Vector(self.touch1.pos).distance(self.touch2.pos)
+        #self.deflector_line.size = (self.lenght, 0)
+        #self.deflector_line.pos = self.touch1.pos
         
-        # adjusting the position of the two end-points
-        self.end_point1.center = self.touch1.pos
-        self.end_point2.center = (self.touch1.x + finger_distance, self.touch1.y)
+        
+        with self.canvas:
+            Color(0, 0, 1)
+            self.deflector_line = Line(points=(self.touch1.x, self.touch1.y, self.touch1.x + self.lenght, self.touch1.y))
+        
+        # set the right position for the two points:
+        self.point1.pos = self.touch1.x - 20, self.touch1.y - 20
+        self.point2.pos = self.touch1.x - 20 + self.lenght, self.touch1.y - 20
+        
+        
         
         # rotation:
         dx = self.touch2.x - self.touch1.x
@@ -78,6 +85,9 @@ class Deflector(Scatter):
         rotation_matrix = Matrix().rotate(angle, 0, 0, 1)
         self.apply_transform(rotation_matrix, post_multiply=True, anchor=self.to_local(self.touch1.x, self.touch1.y))
         
+        # We have to adjust the bounding box of ourself to the dimension of all the canvas objects (Do we have to?)
+        #self.size = (abs(self.touch2.x - self.touch1.x), abs(self.touch2.y - self.touch1.y))
+        #self.pos = (min(self.touch1.x, self.touch2.x), min(self.touch1.y, self.touch2.y))
         
         # Now we finally add both touches we received to the _touches list of the underlying scatter class structure. 
         self.touch1.grab(self)
@@ -87,6 +97,34 @@ class Deflector(Scatter):
         self.touch2.grab(self)
         self._touches.append(self.touch2)
         self._last_touch_pos[self.touch2] = self.touch2.pos
+        
+        self.point1.bind(size=self.size_callback)
+        self.point2.bind(size=self.size_callback)
+    
+    def size_callback(self, instance, size):
+        # problem: if the points are resized (scatter resized them, kv-rule resized them back),
+        # their center isn't on the touch point anymore.
+        difference = self.to_local(self.touch1.x, self.touch1.y)[0] - self.point1.center_x
+        
+        self.point1.pos = self.point1.x + difference, self.point1.y + difference
+        self.point2.pos = self.point2.x + difference, self.point2.y + difference
+        
+        
+    
+    def collide_widget(self, wid):
+        if max(self.point1.pos[0], self.point2.pos[0]) < wid.x:
+            return False
+        if min(self.point1.pos[0], self.point2.pos[0]) > wid.right:
+            return False
+        if max(self.point1.pos[1], self.point2.pos[1]) < wid.y:
+            return False
+        if min(self.point1.pos[1], self.point2.pos[1]) > wid.top:
+            return False
+        return True
+    
+    def collide_point(self, x, y):
+        return min(self.point1.pos[0], self.point2.pos[0]) <= x <= max(self.point1.pos[0], self.point2.pos[0]) \
+           and min(self.point1.pos[1], self.point2.pos[1]) <= y <= max(self.point1.pos[1], self.point2.pos[1])
     
     
     '''
@@ -96,9 +134,9 @@ class Deflector(Scatter):
     ##
     ####################################
     '''
-    '''
+    
     def on_touch_down(self, touch):
-        
+        '''
         if not self.collide_point(*touch.pos):
             return False
         
@@ -111,7 +149,8 @@ class Deflector(Scatter):
             # if not, keep the touch
             print 'no end point touched'
             return True
-    '''
+        '''
+        print touch
     
     '''
     ####################################
