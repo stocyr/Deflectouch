@@ -27,6 +27,7 @@ kivy.require('1.0.9')
 
 from kivy.uix.image import Image
 from kivy.base import EventLoop
+from kivy.vector import Vector
 
 from deflector import Deflector
 
@@ -70,9 +71,13 @@ class Background(Image):
             #print 'lonely touch'
     
     def create_deflector(self, touch_1, touch_2):
-        deflector = Deflector(touch1=touch_1, touch2=touch_2)
+        length = self.length_origin = Vector(touch_1.pos).distance(touch_2.pos)
+        deflector = Deflector(touch1=touch_1, touch2=touch_2, length=length)
         self.parent.deflector_list.append(deflector)
         self.add_widget(deflector)
+        
+        self.parent.stockbar.new_deflector(length)
+        
     
     def delete_deflector(self, deflector):
         self.remove_widget(deflector)

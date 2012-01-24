@@ -47,6 +47,7 @@ from random import randint
 from background import Background
 from tank import Tank
 from bullet import Bullet
+from stockbar import Stockbar
 
 
 '''
@@ -86,6 +87,9 @@ class DeflectouchWidget(Widget):
     
     deflector_list = []
     obstacle_list = []
+    goal_list = []
+    
+    max_stock = 0
         
     
     '''
@@ -136,19 +140,21 @@ class DeflectouchWidget(Widget):
         for obstacle in self.obstacle_list:
             self.remove_widget(obstacle)
         self.obstacle_list = []
+        self.goal_list = []
+        self.max_stock = 0
         
         # Then load the text file in where the level is stored
         level_image = kivy.core.image.Image.load('levels/level01.png', keep_data=True)
         
         for x in range(LEVEL_WIDTH):
-            for y in range(LEVEL_HEIGHT):
+            for y in range(1, LEVEL_HEIGHT + 1):
                 color = level_image.read_pixel(x, y)
                 
                 if color == [0, 0, 0, 1]:
                     # create obstacle brick on white pixels
                     image = Image(source=('graphics/beta/brick' + str(randint(1, 4)) + '.png'),
                                   x = LEVEL_OFFSET[0] + x * BRICK_WIDTH,
-                                  y = LEVEL_OFFSET[1] + (16-y) * BRICK_WIDTH,
+                                  y = LEVEL_OFFSET[1] + y * BRICK_WIDTH,
                                   size = (BRICK_WIDTH, BRICK_WIDTH),
                                   allow_stretch = True)
                     self.obstacle_list.append(image)
@@ -156,11 +162,35 @@ class DeflectouchWidget(Widget):
                 
                 elif color == [0, 0, 1, 1]:
                     # create a goal brick on blue pixels
-                    pass
+                    image = Image(source=('graphics/beta/goal' + str(randint(1, 1)) + '.png'),
+                                  x = LEVEL_OFFSET[0] + x * BRICK_WIDTH,
+                                  y = LEVEL_OFFSET[1] + y * BRICK_WIDTH,
+                                  size = (BRICK_WIDTH, BRICK_WIDTH),
+                                  allow_stretch = True)
+                    self.goal_list.append(image)
+                    self.add_widget(image)
+                    
+        
+        # but in the lowermost row there is also stored the value for the maximum stock 
+        for x in range(LEVEL_WIDTH):
+            color = level_image.read_pixel(x, 0)
+            if color == [1, 0, 0, 1]:
+                self.max_stock += 1
+                print 'red'
+        
+        # now i set up the stockbar widget:
+        self.max_stock = self.max_stock/LEVEL_WIDTH * 1527
+        self.stockbar = Stockbar(max_stock=self.max_stock,
+                                 x=960-self.max_stock/2,
+                                 center_y=85)
+        self.add_widget(self.stockbar)
+        
+        
 
 
 Factory.register("Tank", Tank)
 Factory.register("Background", Background)
+Factory.register("Stockbar", Stockbar)
 
 
 '''

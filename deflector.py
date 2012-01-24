@@ -29,6 +29,7 @@ kivy.require('1.0.9')
 from kivy.graphics import Line, Color
 from kivy.properties import ObjectProperty, NumericProperty
 from kivy.uix.scatter import Scatter
+from kivy.uix.image import Image
 
 from kivy.graphics.transformation import Matrix
 from kivy.vector import Vector
@@ -43,6 +44,11 @@ class Deflector(Scatter):
     point2 = ObjectProperty(None)
     
     deflector_line = ObjectProperty(None)
+    
+    length = NumericProperty(0)
+    length_origin = 0
+    
+    point_pos_origin = []
     
     '''
     ####################################
@@ -60,21 +66,28 @@ class Deflector(Scatter):
         # First i create the line perfectly horizontal but with the correct length. Then i add the two
         # drag points at the beginning and the end.
         
-        
-        # line length:
-        self.lenght = Vector(self.touch1.pos).distance(self.touch2.pos)
-        #self.deflector_line.size = (self.lenght, 0)
+        #self.deflector_line.size = (self.length, 0)
         #self.deflector_line.pos = self.touch1.pos
         
+        self.length_origin = self.length
         
-        with self.canvas:
+        with self.canvas.before:
             Color(0, 0, 1)
-            self.deflector_line = Line(points=(self.touch1.x, self.touch1.y, self.touch1.x + self.lenght, self.touch1.y))
+            self.deflector_line = Line(points=(self.touch1.x, self.touch1.y, self.touch1.x + self.length, self.touch1.y))
+        
+        '''
+        self.deflector_line = Image(source='graphics/beta/deflector_blue_beta2.png',
+                                    allow_stretch=True,
+                                    keep_ratio=False,
+                                    size=(self.length, 20),
+                                    center_y=(self.touch1.y),
+                                    x=self.touch1.x)
+        '''
         
         # set the right position for the two points:
         self.point1.pos = self.touch1.x - 20, self.touch1.y - 20
-        self.point2.pos = self.touch1.x - 20 + self.lenght, self.touch1.y - 20
-        
+        self.point2.pos = self.touch1.x - 20 + self.length, self.touch1.y - 20
+        self.point_pos_origin = [self.point1.x, self.point1.y, self.point2.x, self.point2.y]
         
         
         # rotation:
@@ -99,15 +112,30 @@ class Deflector(Scatter):
         self._last_touch_pos[self.touch2] = self.touch2.pos
         
         self.point1.bind(size=self.size_callback)
-        self.point2.bind(size=self.size_callback)
     
     def size_callback(self, instance, size):
+        
         # problem: if the points are resized (scatter resized them, kv-rule resized them back),
         # their center isn't on the touch point anymore.
-        difference = self.to_local(self.touch1.x, self.touch1.y)[0] - self.point1.center_x
+        self.point1.pos = self.point_pos_origin[0] + (40 - size[0])/2, self.point_pos_origin[1] + (40 - size[0])/2
+        self.point2.pos = self.point_pos_origin[2] + (40 - size[0])/2, self.point_pos_origin[3] + (40 - size[0])/2
         
-        self.point1.pos = self.point1.x + difference, self.point1.y + difference
-        self.point2.pos = self.point2.x + difference, self.point2.y + difference
+        # here comes the calculations of the remaining deflector material stock:
+        
+        self.length = Vector(self.touch1.pos).distance(self.touch2.pos)
+        
+        # get the current stock from the root widget:
+        current_stock = self.parent.parent.stockbar.width
+        
+        # now set the limitation for scaling:
+        #print self.scale, self.scale_max, self.length
+        self.scale_max = (self.length_origin + current_stock) / self.length_origin
+        
+        print current_stock, self.scale, self.scale_max
+        
+        # and if i'm allowed to do, decrease the stock bar
+        if current_stock > 0:
+            self.parent.parent.stockbar.recalculate_stock()
         
         
     

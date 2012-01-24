@@ -1,10 +1,13 @@
 - set initial tank position to the exact middle of the screen on the left.
-- problem: as soon as a touch is recognized, the PQ Labs screen sends *continuously* touch-move events! It doesn't matter if the touch is actually moving -
-  he just sends move events with the actual position... -> I now activated the jitter-post-proc engine with a jitter_distance of 0.001
-- let the "mirror stock" bar change its size smoothly when a new mirror is placed or an old mirror is removed -> use utils.transision OR an animation (bounce :P)
 - settings: they keep not writing the GamePlay Variable into the ini file...
 - bug: wird das rohr nicht genau auf 0 eingestellt, verändert sich das nächste mal die tower-position abhängig vom rohrwinkel
 - set up the whole window as a fixed size (1024x768) fullscreen with black border -> set kivy settings on top of the main file
 - set github repository description
 - bug: horizontal deflector, hit from above, does not deflect!
 - licht am ende des tunnels: man kann im kv-file ein rechteck auch rotieren: s. 184
+- on deflector collision: flash up the deflector
+- if changing the end_point_size: change it in the deflector size_callback too
+- deflector on touch down -> scatter movement
+- debug the problem with "None type has no function "bullet_died()""
+- debug the missing collision if the deflector is nearly horizontal
+- debug if i comment aôut the recalculation call in the deflector position callback, the scale-limit works. if NOT: the scale-limit works not. ??
