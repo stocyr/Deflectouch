@@ -36,6 +36,9 @@ from kivy.vector import Vector
 from math import atan2
 
 
+MIN_DEFLECTOR_LENGTH = 100
+
+
 class Deflector(Scatter):
     touch1 = ObjectProperty(None)
     touch2 = ObjectProperty(None)
@@ -72,7 +75,7 @@ class Deflector(Scatter):
         self.length_origin = self.length
         
         with self.canvas.before:
-            Color(0, 0, 1)
+            Color(.8, .8, .8)
             self.deflector_line = Line(points=(self.touch1.x, self.touch1.y, self.touch1.x + self.length, self.touch1.y))
         
         '''
@@ -113,29 +116,31 @@ class Deflector(Scatter):
         
         self.point1.bind(size=self.size_callback)
     
-    def size_callback(self, instance, size):
-        
+    def size_callback(self, instance, size):        
         # problem: if the points are resized (scatter resized them, kv-rule resized them back),
         # their center isn't on the touch point anymore.
         self.point1.pos = self.point_pos_origin[0] + (40 - size[0])/2, self.point_pos_origin[1] + (40 - size[0])/2
         self.point2.pos = self.point_pos_origin[2] + (40 - size[0])/2, self.point_pos_origin[3] + (40 - size[0])/2
         
         # here comes the calculations of the remaining deflector material stock:
-        
         self.length = Vector(self.touch1.pos).distance(self.touch2.pos)
         
         # get the current stock from the root widget:
         current_stock = self.parent.parent.stockbar.width
         
         # now set the limitation for scaling:
-        #print self.scale, self.scale_max, self.length
         self.scale_max = (self.length_origin + current_stock) / self.length_origin
-        
-        print current_stock, self.scale, self.scale_max
         
         # and if i'm allowed to do, decrease the stock bar
         if current_stock > 0:
             self.parent.parent.stockbar.recalculate_stock()
+        
+        if self.length < MIN_DEFLECTOR_LENGTH:
+            self.point1.source = 'graphics/beta/finger_point_red_beta.png'
+            self.point2.source = 'graphics/beta/finger_point_red_beta.png'
+        else:
+            self.point1.source = 'graphics/beta/finger_point_blue_beta.png'
+            self.point2.source = 'graphics/beta/finger_point_blue_beta.png'
         
         
     

@@ -81,5 +81,7 @@ class Background(Image):
     
     def delete_deflector(self, deflector):
         self.remove_widget(deflector)
-        self.deflector_list.remove(deflector)
+        self.parent.deflector_list.remove(deflector)
         del deflector
+        
+        self.parent.stockbar.deflector_deleted()

@@ -29,6 +29,8 @@ from kivy.animation import Animation
 from kivy.uix.image import Image
 from kivy.properties import NumericProperty
 
+MIN_DEFLECTOR_LENGTH = 100
+
 
 '''
 ####################################
@@ -59,8 +61,18 @@ class Stockbar(Image):
                 length_sum += deflector.length
         
         self.width = self.max_stock - length_sum
+        
+        if self.width < MIN_DEFLECTOR_LENGTH:
+            self.source = 'graphics/beta/deflector_red_beta2.png'
+        else:
+            self.source = 'graphics/beta/deflector_blue_beta2.png'
     
     def new_deflector(self, length):
+        # is called when a new deflector is created.
+        animation = Animation(width=self.width - length, t='out_elastic', duration=1)
+        animation.start(self)
+    
+    def deflector_deleted(self, length):
         # is called when a new deflector is created.
         animation = Animation(width=self.width - length, t='out_elastic', duration=1)
         animation.start(self)

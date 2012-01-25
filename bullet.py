@@ -197,7 +197,10 @@ class Bullet(Image):
                     self.check_deflector_collision(deflector)
         
         # then check if there's a collision with the goal:
-        
+        if not len(self.parent.goal_list) == 0:
+            for goal in self.parent.goal_list:
+                if self.collide_widget(goal):
+                    self.on_collision_with_goal()
         
         # then check if there's a collision with obstacles:
         if not len(self.parent.obstacle_list) == 0:
@@ -244,6 +247,7 @@ class Bullet(Image):
     def on_collision_with_goal(self):
         print 'goal'
         self.bullet_explode()
+        self.parent.level_accomplished()
         
         
         

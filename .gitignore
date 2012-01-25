@@ -1,5 +1,9 @@
 .project
+
 .pydevproject
-*.pyc
-deflectouch.ini
-screenshot*
+
+./*.pyc
+
+./*.ini
+
+./*screenshot
