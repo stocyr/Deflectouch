@@ -2,8 +2,8 @@
 
 .pydevproject
 
-./*.pyc
+*.pyc
 
-./*.ini
+*.ini
 
-./*screenshot
+*screenshot*.jpg

@@ -28,6 +28,7 @@ kivy.require('1.0.9')
 
 from kivy.properties import ObjectProperty
 from kivy.graphics.transformation import Matrix
+from kivy.graphics import Point, Rectangle
 from kivy.uix.image import Image
 from kivy.uix.widget import Widget
 
@@ -57,7 +58,6 @@ class Tank(Widget):
         if not self.collide_point(*touch.pos):
             return False
         else:
-            print 'tank'
             touch.ud['tank_touch'] = True
             return True
             
@@ -91,7 +91,7 @@ class Tank(Widget):
             ud['rotation_mode'] = True
         
         else:
-            # if 'normal' dragging (up and down) is performed, do it: 
+            # if the user wants only to drag the tank up and down, let him do it!
             self.y += touch.dy
             pass
 

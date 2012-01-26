@@ -12,6 +12,8 @@
 - debug if i comment uut the recalculation call in the deflector position callback, the scale-limit works. if NOT: the scale-limit works not. ??
 - if i don't make 40 levels, change the '40' everywhere!
 - bug: if bullet speed is changed and a bullet is fired, i get the well known "TypeError: argument of type 'int' is not iterable" error
+- bug: deflectors are BEHIND the level itself
+- feature: on every on_progress of the bullet animation: draw a line like in the touchtracer or the programming guide app
 
 - window-size occurences:
 

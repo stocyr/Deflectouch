@@ -35,6 +35,7 @@ from kivy.properties import ObjectProperty, StringProperty, NumericProperty
 from kivy.factory import Factory
 from kivy.utils import boundary
 from kivy.clock import Clock
+from kivy.animation import Animation
 
 from kivy.uix.image import Image
 from kivy.uix.widget import Widget
@@ -42,6 +43,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
+from kivy.uix.label import Label
 
 from math import sin
 from math import cos
@@ -183,23 +185,42 @@ class DeflectouchWidget(Widget):
         # create a popup with all the levels
         grid_layout = GridLayout(cols=8,rows=5,spacing=10, padding=10)
         
-        for counter, char in enumerate(self.app.config.get('GamePlay', 'Levels')):
-            button = Button(text=str(counter+1),bold=True,font_size=20)
-            button.bind(on_press=self.load_level)
+        enable_next_row = True
+        row_not_complete = False
+        for row in range(5):
+            for collumn in range(8):
+                button = Button(text=str(row*8 + (collumn + 1)),bold=True,font_size=30)
+                
+                if enable_next_row == True:
+                    # if this row is already enabled:
+                    button.bind(on_press=self.load_level)
+                
+                    if self.app.config.get('GamePlay', 'Levels')[row*8 + collumn] == '1':
+                        # if level was already done, green button
+                        button.background_color = (0, 1, 0, 1)
+                    else:
+                        # if level not yet done but enabled though, red button
+                        button.background_color = (1, 0, 0, 0.5)
+                        
+                        # and do NOT enable the next row then:
+                        row_not_complete = True
+                
+                else:
+                    # if not yet enabled:
+                    button.background_color = (0.1, 0.05, 0.05, 1)
+                    
+                grid_layout.add_widget(button)
             
-            if char == '0':
-                button.background_color = (1, 0, 0, 0.5)
-            else:
-                button.background_color = (0, 1, 0, 0.5)
-            
-            grid_layout.add_widget(button)
+            if row_not_complete == True:
+                enable_next_row = False
         
-        popup = Popup(title='Levels',
+        popup = Popup(title='Level List (if you finished a row, the next row will get enabled!)',
                       content=grid_layout,
                       size_hint=(0.5, 0.5))
         popup.open()
     
     def settings_button_pressed(self):
+        '''
         # the first time the setting dialog is called, initialize its content.
         if self.setting_popup == None:
             
@@ -217,6 +238,8 @@ class DeflectouchWidget(Widget):
             self.setting_dialog.speed_slider.value = boundary(self.app.config.getint('GamePlay', 'BulletSpeed'), 1, 10)
         
         self.setting_popup.open()
+        '''
+        self.level_accomplished()
         
     def display_help_screen(self):
         # display the help screen on a Popup
@@ -252,15 +275,40 @@ class DeflectouchWidget(Widget):
         
         # store score in config:
         levels_before = self.app.config.get('GamePlay', 'Levels')
-        levels_before[self.level - 1] = '1'
+        #alevels_before[self.level - 1] = '1'
         self.app.config.set('GamePlay', 'Levels', levels_before)
         self.app.config.write()
         
+        # show picture
+        image = Image(source='graphics/accomplished.png', size_hint=(None, None), size=(200, 200), center=self.center)
+        animation = Animation(size=(350, 416), duration=1, t='out_bounce')
+        animation &= Animation(center=self.center, duration=1, t='out_bounce')
+        animation += Animation(size=(350, 416), duration=1) # little hack to sleep for 1 sec
+        
+        self.add_widget(image)
+        animation.start(image)
+        animation.bind(on_complete=self.accomplished_animation_complete)
+    
+    def accomplished_animation_complete(self, animation, widget):
+        self.remove_widget(widget)
+        
         # open the level dialog
         self.level_button_pressed()
+        
     
     def load_level(self, level):
-        print 'level'
+        # i have to check if the function is called by a level button in the level popup OR with an int as argument:
+        if not isinstance(level, int):
+            level = int(level.text)
+        
+        # try to lead the level image
+        try:
+            level_image = kivy.core.image.Image.load('levels/level%02d.png' % level, keep_data=True)
+        except Exception, e:
+            error_text = 'Unable to load Level %d!\n\nReason: %s' % (level, e)
+            Popup(title='Level loading error:', content=Label(text=error_text, font_size=18), size_hint=(0.3, 0.2)).open()
+            return
+        
         # First of all, delete the old level:
         for obstacle in self.obstacle_list:
             self.remove_widget(obstacle)
@@ -274,16 +322,10 @@ class DeflectouchWidget(Widget):
             self.remove_widget(self.stockbar)
         self.max_stock = 0
         
-        
-        # i have to check if the function is called by a level button in the level popup OR with an int as argument:
-        if not isinstance(level, int):
-            level = int(level.text)
-        
+        # set level inital state
         self.lives = 3
         self.level = level
         
-        # Then load the text file in where the level is stored
-        level_image = kivy.core.image.Image.load('levels/level%02d.png' % level, keep_data=True)
         
         for x in range(LEVEL_WIDTH):
             for y in range(1, LEVEL_HEIGHT + 1):

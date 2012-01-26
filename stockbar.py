@@ -74,5 +74,5 @@ class Stockbar(Image):
     
     def deflector_deleted(self, length):
         # is called when a new deflector is created.
-        animation = Animation(width=self.width - length, t='out_elastic', duration=1)
+        animation = Animation(width=self.width + length, t='out_elastic', duration=1)
         animation.start(self)

@@ -29,6 +29,7 @@ kivy.require('1.0.9')
 from kivy.properties import NumericProperty, ObjectProperty
 from kivy.uix.image import Image
 from kivy.animation import Animation
+from kivy.graphics import Color, Line
 
 from kivy.utils import boundary
 from math import tan
@@ -41,6 +42,8 @@ from kivy.vector import Vector
 class Bullet(Image):
     angle = NumericProperty(0) # in radians!
     animation = ObjectProperty(None)
+    
+    canvas_line = []
         
     '''
     ####################################
@@ -61,6 +64,10 @@ class Bullet(Image):
         # start the animation
         self.animation.start(self)
         self.animation.bind(on_complete=self.on_collision_with_edge)
+        
+        with self.canvas:
+            Color(0, 0, 1, 0.5)
+            self.canvas_line = Line(points=self.center)
         
         # start to track the position changes
         self.bind(pos=self.callback_pos)
@@ -207,6 +214,9 @@ class Bullet(Image):
             for obstacle in self.parent.obstacle_list:
                 if self.collide_widget(obstacle):
                     self.on_collision_with_obstacle()
+        
+        # draw a nice line after the bullet:
+        self.canvas_line.points += [self.center_x, self.center_y]
     
     def bullet_explode(self):
         self.unbind(pos=self.callback_pos)
@@ -215,6 +225,7 @@ class Bullet(Image):
         
         # create an explosion animation
         #bind(animation, self.parent.bullet_died
+        self.canvas.clear()
         self.parent.bullet_died()
         
     def on_collision_with_edge(self, animation, widget):
