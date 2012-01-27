@@ -261,7 +261,17 @@ class DeflectouchWidget(Widget):
     ####################################
     '''
     
-    def bullet_died(self):
+    def bullet_exploding(self):
+        # create an animation on the old bullets position:
+        # bug: gif isn't transparent
+        '''
+        old_pos = self.bullet.center
+        self.bullet.anim_delay = 0.1
+        self.bullet.size = 96, 96
+        self.bullet.center = old_pos
+        self.bullet.source = 'graphics/explosion.gif'
+        Clock.schedule_once(self.bullet_exploded, 1)
+        '''
         self.remove_widget(self.bullet)
         self.bullet = None
         # or should i write del self.bullet instead?

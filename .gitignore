@@ -1,9 +1,5 @@
 .project
-
 .pydevproject
-
 *.pyc
-
 *.ini
-
-*screenshot*.jpg
+screenshot*.jpg

@@ -44,6 +44,8 @@ class Bullet(Image):
     animation = ObjectProperty(None)
     
     canvas_line = []
+    
+    exploding = False
         
     '''
     ####################################
@@ -187,10 +189,6 @@ class Bullet(Image):
         
     
     def callback_pos(self, instance, pos):
-        # to prevent some strange exception errors:
-        if self == None:
-            return
-        
         # check here if the bullet collides with a deflector, an obstacle or the goal
         # (edge collision detection is irrelevant - the edge is where the bullet animation ends
         # and therefor a callback is raised then)
@@ -215,25 +213,27 @@ class Bullet(Image):
                 if self.collide_widget(obstacle):
                     self.on_collision_with_obstacle()
         
+        
         # draw a nice line after the bullet:
         self.canvas_line.points += [self.center_x, self.center_y]
     
     def bullet_explode(self):
+        if self.exploding == True:
+            return
+        self.exploding = True
+        
         self.unbind(pos=self.callback_pos)
         self.animation.unbind(on_complete=self.on_collision_with_edge)
         self.animation.stop(self)
         
-        # create an explosion animation
-        #bind(animation, self.parent.bullet_died
-        self.canvas.clear()
-        self.parent.bullet_died()
+        # turn the bullet into an explosion gif
+        self.canvas.remove(self.canvas_line)
+        self.parent.bullet_exploding()
         
     def on_collision_with_edge(self, animation, widget):
-        print 'edge'
         self.bullet_explode()
     
     def on_collision_with_obstacle(self):
-        print 'obstacle'
         self.bullet_explode()
     
     def on_collision_with_deflector(self, deflector, deflector_vector):
@@ -256,7 +256,6 @@ class Bullet(Image):
         self.animation.bind(on_complete=self.on_collision_with_edge)
     
     def on_collision_with_goal(self):
-        print 'goal'
         self.bullet_explode()
         self.parent.level_accomplished()
         
