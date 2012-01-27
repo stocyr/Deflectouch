@@ -98,17 +98,17 @@ class SettingDialog(BoxLayout):
     
     def update_music_volume(self, instance, value):
         # write to app configs
-        self.root.app.config.set('General', 'Music', int(value))
+        self.root.app.config.set('General', 'Music', str(int(value)))
         self.root.app.config.write()
     
     def update_sound_volume(self, instance, value):
         # write to app configs
-        self.root.app.config.set('General', 'Sound', int(value))
+        self.root.app.config.set('General', 'Sound', str(int(value)))
         self.root.app.config.write()
     
     def update_speed(self, instance, value):
         # write to app configs
-        self.root.app.config.set('GamePlay', 'BulletSpeed', int(value))
+        self.root.app.config.set('GamePlay', 'BulletSpeed', str(int(value)))
         self.root.app.config.write()
     
     def display_help_screen(self):
@@ -179,7 +179,6 @@ class DeflectouchWidget(Widget):
         # now the user can begin once again with 3 lives:
         self.lives = 3
         
-        
     
     def level_button_pressed(self):
         # create a popup with all the levels
@@ -220,7 +219,6 @@ class DeflectouchWidget(Widget):
         popup.open()
     
     def settings_button_pressed(self):
-        '''
         # the first time the setting dialog is called, initialize its content.
         if self.setting_popup == None:
             
@@ -238,8 +236,6 @@ class DeflectouchWidget(Widget):
             self.setting_dialog.speed_slider.value = boundary(self.app.config.getint('GamePlay', 'BulletSpeed'), 1, 10)
         
         self.setting_popup.open()
-        '''
-        self.level_accomplished()
         
     def display_help_screen(self):
         # display the help screen on a Popup
@@ -281,16 +277,15 @@ class DeflectouchWidget(Widget):
             self.reset_button_pressed()
     
     def level_accomplished(self):
-        # show up a little image with animation: size*2 and out_bounce and the wait 1 sec
-        
-        # store score in config:
-        levels_before = self.app.config.get('GamePlay', 'Levels')
-        #alevels_before[self.level - 1] = '1'
-        self.app.config.set('GamePlay', 'Levels', levels_before)
+        # store score in config: (i have to convert the string to a list to do specific char writing)
+        levels_before = list(self.app.config.get('GamePlay', 'Levels'))
+        levels_before[self.level - 1] = '1'
+        self.app.config.set('GamePlay', 'Levels', "".join(levels_before))
         self.app.config.write()
         
-        # show picture
-        image = Image(source='graphics/accomplished.png', size_hint=(None, None), size=(200, 200), center=self.center)
+        # show up a little image with animation: size*2 and out_bounce and the wait 1 sec
+        image = Image(source='graphics/accomplished.png', size_hint=(None, None), size=(200, 200))
+        image.center=self.center
         animation = Animation(size=(350, 416), duration=1, t='out_bounce')
         animation &= Animation(center=self.center, duration=1, t='out_bounce')
         animation += Animation(size=(350, 416), duration=1) # little hack to sleep for 1 sec
