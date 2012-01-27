@@ -143,6 +143,8 @@ class DeflectouchWidget(Widget):
     
     max_stock = 0
     
+    level_build_index = 0
+    
     
     '''
     ####################################
@@ -156,6 +158,8 @@ class DeflectouchWidget(Widget):
             # if there is already a bullet existing (which means it's flying around or exploding somewhere)
             # don't fire.
             return
+        
+        pass #SOUND: BULLET STARTED (BHHHOUUUU, VIEL WIND)
         
         # create a bullet, calculate the start position and fire it.
         tower_angle = radians(self.tank.tank_tower_scatter.rotation)
@@ -172,6 +176,8 @@ class DeflectouchWidget(Widget):
             self.remove_widget(self.bullet)
             self.bullet = None
         
+        pass #SOUND: LEVEL RESET (sssSSSSUP, EINSAUGEN)
+        
         # then delete all the deflectors.
         self.background.delete_all_deflectors()
         
@@ -180,6 +186,8 @@ class DeflectouchWidget(Widget):
         
     
     def level_button_pressed(self):
+        pass #SOUND: CLICK LIKE IN GUNSHIP
+        
         # create a popup with all the levels
         grid_layout = GridLayout(cols=8,rows=5,spacing=10, padding=10)
         
@@ -218,6 +226,8 @@ class DeflectouchWidget(Widget):
         popup.open()
     
     def settings_button_pressed(self):
+        pass #SOUND: CLICK LIKE IN GUNSHIP
+        
         # the first time the setting dialog is called, initialize its content.
         if self.setting_popup == None:
             
@@ -257,6 +267,8 @@ class DeflectouchWidget(Widget):
     '''
     
     def bullet_exploding(self):
+        pass #SOUND: BULLET EXPLOSION
+        
         # create an animation on the old bullets position:
         # bug: gif isn't transparent
         '''
@@ -276,6 +288,8 @@ class DeflectouchWidget(Widget):
             self.reset_button_pressed()
     
     def level_accomplished(self):
+        pass #SOUND: ACCOMPLISHED (TOIOIOIOIO)
+        
         # store score in config: (i have to convert the string to a list to do specific char writing)
         levels_before = list(self.app.config.get('GamePlay', 'Levels'))
         levels_before[self.level - 1] = '1'
@@ -308,6 +322,8 @@ class DeflectouchWidget(Widget):
         # i have to check if the function is called by a level button in the level popup OR with an int as argument:
         if not isinstance(level, int):
             level = int(level.text)
+            # and if the function was called by a button, play a sound
+            pass #SOUND: LEVEL SELECT
         
         # try to lead the level image
         try:
@@ -334,9 +350,8 @@ class DeflectouchWidget(Widget):
         self.lives = 3
         self.level = level
         
-        
-        for x in range(LEVEL_WIDTH):
-            for y in range(1, LEVEL_HEIGHT + 1):
+        for y in range(LEVEL_HEIGHT, 0, -1):
+            for x in range(LEVEL_WIDTH):
                 color = level_image.read_pixel(x, y)
                 if len(color) > 3:
                     # if there was transparency stored in the image, cut it.
@@ -350,7 +365,8 @@ class DeflectouchWidget(Widget):
                                   size = (BRICK_WIDTH, BRICK_WIDTH),
                                   allow_stretch = True)
                     self.obstacle_list.append(image)
-                    self.background.add_widget(image)
+                    # the actual widget adding is done in build_level()
+                    #self.background.add_widget(image)
                 
                 elif color == [0, 0, 1]:
                     # create a goal brick on blue pixels
@@ -360,7 +376,8 @@ class DeflectouchWidget(Widget):
                                   size = (BRICK_WIDTH, BRICK_WIDTH),
                                   allow_stretch = True)
                     self.goal_list.append(image)
-                    self.background.add_widget(image)
+                    # the actual widget adding is done in build_level()
+                    #self.background.add_widget(image)
                     
         
         # but in the lowermost row there is also stored the value for the maximum stock 
@@ -379,7 +396,25 @@ class DeflectouchWidget(Widget):
                                  x=960-self.max_stock/2,
                                  center_y=85)
         self.add_widget(self.stockbar)
-
+        
+        # now start to build up the level:
+        self.level_build_index = 0
+        Clock.schedule_interval(self.build_level, 0.002)
+        
+    def build_level(self, instance):
+        if self.level_build_index % 5 == 0:
+            # play a sound every now and then:
+            pass #SOUND: HIGH TEXT BLEEP
+        
+        if self.level_build_index < len(self.obstacle_list):
+            self.background.add_widget(self.obstacle_list[self.level_build_index])
+        else:
+            if self.level_build_index - len(self.obstacle_list) != len(self.goal_list):
+                self.background.add_widget(self.goal_list[self.level_build_index - len(self.obstacle_list)])
+            else:
+                # we're done. Disable the schedule
+                return False
+        self.level_build_index += 1
 
 Factory.register("Tank", Tank)
 Factory.register("Background", Background)

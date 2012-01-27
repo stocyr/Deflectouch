@@ -1,5 +1,4 @@
 - set initial tank position to the exact middle of the screen on the left.
-- bug: wird das rohr nicht genau auf 0 eingestellt, verändert sich das nächste mal die tower-position abhängig vom rohrwinkel
 - set up the whole window as a fixed size (1024x768) fullscreen with black border -> set kivy settings on top of the main file
 - set github repository description
 - bug: horizontal deflector, hit from above, does not deflect!

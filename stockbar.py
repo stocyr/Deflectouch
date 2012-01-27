@@ -25,7 +25,6 @@ along with Deflectouch.  If not, see <http://www.gnu.org/licenses/>.
 import kivy
 kivy.require('1.0.9')
 
-from kivy.animation import Animation
 from kivy.uix.image import Image
 from kivy.properties import NumericProperty
 
@@ -42,7 +41,7 @@ MIN_DEFLECTOR_LENGTH = 100
 class Stockbar(Image):
     max_stock = NumericProperty(0)
     
-    new_deflectors_forbidden = False
+    new_deflectors_allowed = True
     
     
     def recalculate_stock(self):
@@ -59,18 +58,13 @@ class Stockbar(Image):
         if self.width < MIN_DEFLECTOR_LENGTH:
             # if the stock material doesn't suffice for a new deflector, disable new deflectors
             self.source = 'graphics/beta/deflector_red_beta2.png'
-            self.new_deflectors_forbidden = True
+            self.new_deflectors_allowed = False
         elif self.width <= 0:
-            # if all the stock material was used up, disable new deflectors AND limit scaling of the old ones.
-            self.new_deflectors_forbidden = True
-            #for deflector in self.parent.deflector_list:
-            #    deflector.scale_max = deflector.scale
+            # if all the stock material was used up, disable new deflectors
+            self.new_deflectors_allowed = False
         else:
             self.source = 'graphics/beta/deflector_blue_beta2.png'
-            self.new_deflectors_forbidden = False
-            # disable the scale limitation
-            #for deflector in self.parent.deflector_list:
-            #    deflector.scale_max = 100
+            self.new_deflectors_allowed = True
     
     def new_deflector(self, length):
         # is called when a new deflector is created.

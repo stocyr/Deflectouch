@@ -170,7 +170,7 @@ class Bullet(Image):
         
         # now we finally check if the bullet is close enough to the deflector line:
         distance = abs(sin(radians(bullet_direction.angle(deflector_vector)) % (pi/2))) * Vector(intersection - bullet_position).length()
-        if distance < (self.width / 2):
+        if distance < (self.width / 2) - 5:
             # there is a collision!
             '''
             print 'bullet_position: ' , bullet_position
@@ -225,7 +225,6 @@ class Bullet(Image):
         self.animation.unbind(on_complete=self.on_collision_with_edge)
         self.animation.stop(self)
         
-        # turn the bullet into an explosion gif
         self.canvas.remove(self.canvas_line)
         self.parent.bullet_exploding()
         
@@ -238,9 +237,14 @@ class Bullet(Image):
     def on_collision_with_deflector(self, deflector, deflector_vector):
         print 'deflector'
         
+        pass #SOUND: DEFLECTOR
+        
         # flash up the deflector
-        deflector.color = (1, 1, 1)
-        Animation(color=(0, 0, 1), duration=1, t='out_expo').start(deflector)
+        deflector.point1.color = (1, 1, 1, 1)
+        deflector.point2.color = (1, 1, 1, 1)
+        animation = Animation(color=(0, 0, 1, 1), duration=2, t='out_expo')
+        animation.start(deflector.point1)
+        animation.start(deflector.point2)
         
         # calculate deflection angle
         impact_angle = (radians(deflector_vector.angle(Vector(1, 0))) % pi) - (self.angle % pi)

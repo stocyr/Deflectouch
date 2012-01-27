@@ -32,6 +32,9 @@ from kivy.vector import Vector
 from deflector import Deflector
 
 
+MIN_DEFLECTOR_LENGTH = 100
+
+
 '''
 ####################################
 ##
@@ -51,30 +54,38 @@ class Background(Image):
     def on_touch_down(self, touch):
         ud = touch.ud
         
+        # if a bullet has been fired and is flying now, don't allow ANY change!
+        if self.parent.bullet != None:
+            return True
+        
         for deflector in self.parent.deflector_list:
-            if deflector.collide_point(*touch.pos):
-                print 'touch on deflector'
-                
-                # here comes the selection: do i want to pass the touches to the scatter?
-                # if i really pass it to a deflector:
-                return True
+            if deflector.collide_grab_point(*touch.pos):
+                # pass the touch to the deflector scatter
+                return super(Background, self).on_touch_down(touch)
         
         # if i didn't wanted to move / scale a deflector and but rather create a new one:
         # search for other 'lonely' touches
               
         for search_touch in EventLoop.touches[:]:
             if 'lonely' in search_touch.ud:
-                # so here we have a second touch: make a pairing.
                 del search_touch.ud['lonely']
-                self.create_deflector(search_touch, touch)
+                # so here we have a second touch: try to create a deflector:
+                if self.parent.stockbar.new_deflectors_allowed == True:
+                    length = Vector(search_touch.pos).distance(touch.pos)
+                    # create only a new one if he's not too big and not too small
+                    if MIN_DEFLECTOR_LENGTH <= length <= self.parent.stockbar.width:
+                        self.create_deflector(search_touch, touch, length)
+                else:
+                    pass #SOUND: NO NEW DEFLECTOR
+                
                 return True
         
         # if no second touch was found: tag the current one as a 'lonely' touch
         ud['lonely'] = True
         
     
-    def create_deflector(self, touch_1, touch_2):
-        length = Vector(touch_1.pos).distance(touch_2.pos)
+    def create_deflector(self, touch_1, touch_2, length):
+        pass #SOUND: NEW DEFLECTOR
         deflector = Deflector(touch1=touch_1, touch2=touch_2, length=length)
         self.parent.deflector_list.append(deflector)
         self.add_widget(deflector)
@@ -83,6 +94,7 @@ class Background(Image):
         
     
     def delete_deflector(self, deflector):
+        pass #SOUND: DELETE DEFLECTOR
         self.parent.stockbar.deflector_deleted(deflector.length)
         
         self.remove_widget(deflector)
