@@ -1,18 +1,7 @@
-- set initial tank position to the exact middle of the screen on the left.
-- set up the whole window as a fixed size (1024x768) fullscreen with black border -> set kivy settings on top of the main file
-- set github repository description
-- bug: horizontal deflector, hit from above, does not deflect!
-- licht am ende des tunnels: man kann im kv-file ein rechteck auch rotieren: s. 184
-- on deflector collision: flash up the deflector
-- if changing the end_point_size: change it in the deflector size_callback too
-- deflector on touch down -> scatter movement
-- debug the problem with "None type has no function "bullet_died()""
-- debug the missing collision if the deflector is nearly horizontal
-- debug if i comment uut the recalculation call in the deflector position callback, the scale-limit works. if NOT: the scale-limit works not. ??
-- if i don't make 40 levels, change the '40' everywhere!
-- bug: if bullet speed is changed and a bullet is fired, i get the well known "TypeError: argument of type 'int' is not iterable" error
-- bug: deflectors are BEHIND the level itself
-- feature: on every on_progress of the bullet animation: draw a line like in the touchtracer or the programming guide app
-
-- window-size occurences:
-
+- TODO: set initial tank position to the exact middle of the screen on the left.
+- TODO: set up the whole window as a fixed size (1024x768) fullscreen with black border -> set kivy settings on top of the main file
+- TODO: set github repository description
+- FEATURE: licht am ende des tunnels: man kann im kv-file ein rechteck auch rotieren: s. 184
+- NOTE: if changing the end_point_size: change it in the deflector size_callback too
+- BUG: the missing collision if the deflector is nearly horizontal
+- TODO: help + about button

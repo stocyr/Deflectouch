@@ -79,7 +79,7 @@ class Tank(Widget):
             # if the current touch is already in the 'rotate' mode, rotate the tower.
             dx = touch.x - self.center_x
             dy = touch.y - self.center_y
-            angle = boundary(atan2(dy, dx) * 360 / 2 / pi, -60, 60)
+            angle = boundary(atan2(dy, dx) * 360 / 2 / pi, -80, 80)
             
             angle_change = self.tank_tower_scatter.rotation - angle
             rotation_matrix = Matrix().rotate(-radians(angle_change), 0, 0, 1)

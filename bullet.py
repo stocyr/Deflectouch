@@ -29,7 +29,7 @@ kivy.require('1.0.9')
 from kivy.properties import NumericProperty, ObjectProperty
 from kivy.uix.image import Image
 from kivy.animation import Animation
-from kivy.graphics import Color, Line
+from kivy.graphics import Color, Point
 
 from kivy.utils import boundary
 from math import tan
@@ -41,9 +41,7 @@ from kivy.vector import Vector
 
 class Bullet(Image):
     angle = NumericProperty(0) # in radians!
-    animation = ObjectProperty(None)
-    
-    canvas_line = []
+    animation = None
     
     exploding = False
         
@@ -59,6 +57,7 @@ class Bullet(Image):
         super(Bullet, self).__init__(**kwargs)
         
     def fire(self):
+        print '################# FIRE ##################'
         destination = self.calc_destination(self.angle)
         speed = boundary(self.parent.app.config.getint('GamePlay', 'BulletSpeed'), 1, 10)
         self.animation = self.create_animation(speed, destination)
@@ -67,10 +66,6 @@ class Bullet(Image):
         self.animation.start(self)
         self.animation.bind(on_complete=self.on_collision_with_edge)
         
-        with self.canvas:
-            Color(0, 0, 1, 0.5)
-            self.canvas_line = Line(points=self.center)
-        
         # start to track the position changes
         self.bind(pos=self.callback_pos)
         
@@ -78,7 +73,10 @@ class Bullet(Image):
     def create_animation(self, speed, destination):
         # create the animation
         # t = s/v -> v from 1 to 10 / unit-less
-        time = Vector(self.center).distance(destination) / (speed * 70)
+        # NOTE: THE DIFFERENCE BETWEEN TWO RENDERED ANIMATION STEPS
+        # MUST *NOT* EXCESS THE RADIUS OF THE BULLET! OTHERWISE I
+        # HAVE PROBLEMS DETECTING A COLLISION WITH A DEFLECTOR!!
+        time = Vector(self.center).distance(destination) / (speed * 40)
         return Animation(pos=destination, duration=time)
         
     def calc_destination(self, angle):
@@ -150,12 +148,14 @@ class Bullet(Image):
         # first thing to do is: we need a vector describing the bullet. Length isn't important.
         bullet_position = Vector(self.center)
         bullet_direction = Vector(1, 0).rotate(self.angle * 360 / (2*pi))
+        deflector_point1 = Vector(deflector.to_parent(deflector.point1.center[0], deflector.point1.center[1]))
+        deflector_point2 = Vector(deflector.to_parent(deflector.point2.center[0], deflector.point2.center[1]))
         
         # then we need a vector describing the deflector line.
-        deflector_vector = Vector(deflector.touch2.pos) - Vector(deflector.touch1.pos)
+        deflector_vector = Vector(deflector_point2 - deflector_point1)
         
         # now we do a line intersection with the deflector line:
-        intersection = Vector.line_intersection(bullet_position, bullet_position + bullet_direction, Vector(deflector.touch1.pos), Vector(deflector.touch2.pos))
+        intersection = Vector.line_intersection(bullet_position, bullet_position + bullet_direction, deflector_point1, deflector_point2)
         
         # now we want to proof if the bullet comes from the 'right' side.
         # Because it's possible that the bullet is colliding with the deflectors bounding box but
@@ -170,16 +170,9 @@ class Bullet(Image):
         
         # now we finally check if the bullet is close enough to the deflector line:
         distance = abs(sin(radians(bullet_direction.angle(deflector_vector)) % (pi/2))) * Vector(intersection - bullet_position).length()
-        if distance < (self.width / 2) - 5:
+        print distance
+        if distance < (self.width / 2):
             # there is a collision!
-            '''
-            print 'bullet_position: ' , bullet_position
-            print 'bullet_direction: ' , bullet_direction
-            print 'deflector_vector: ' , deflector_vector
-            print 'intersection: ' , intersection
-            print 'distance: ' , distance 
-            self.animation.stop(self)
-            '''
             # kill the animation!
             self.animation.unbind(on_complete=self.on_collision_with_edge)
             self.animation.stop(self)
@@ -199,22 +192,21 @@ class Bullet(Image):
                 #print 'deflector on center=', deflector.center
                 if deflector.collide_widget(self):
                     self.check_deflector_collision(deflector)
+                    return
         
         # then check if there's a collision with the goal:
         if not len(self.parent.goal_list) == 0:
             for goal in self.parent.goal_list:
                 if self.collide_widget(goal):
                     self.on_collision_with_goal()
+                    return
         
         # then check if there's a collision with obstacles:
         if not len(self.parent.obstacle_list) == 0:
             for obstacle in self.parent.obstacle_list:
                 if self.collide_widget(obstacle):
                     self.on_collision_with_obstacle()
-        
-        
-        # draw a nice line after the bullet:
-        self.canvas_line.points += [self.center_x, self.center_y]
+                    return
     
     def bullet_explode(self):
         if self.exploding == True:
@@ -225,7 +217,6 @@ class Bullet(Image):
         self.animation.unbind(on_complete=self.on_collision_with_edge)
         self.animation.stop(self)
         
-        self.canvas.remove(self.canvas_line)
         self.parent.bullet_exploding()
         
     def on_collision_with_edge(self, animation, widget):
@@ -240,9 +231,11 @@ class Bullet(Image):
         pass #SOUND: DEFLECTOR
         
         # flash up the deflector
+        Animation.stop_all(deflector.point1, 'color')
+        Animation.stop_all(deflector.point2, 'color')
         deflector.point1.color = (1, 1, 1, 1)
         deflector.point2.color = (1, 1, 1, 1)
-        animation = Animation(color=(0, 0, 1, 1), duration=2, t='out_expo')
+        animation = Animation(color=(0, 0, 1, 1), duration=3, t='out_expo')
         animation.start(deflector.point1)
         animation.start(deflector.point2)
         
@@ -259,8 +252,12 @@ class Bullet(Image):
         self.animation.bind(on_complete=self.on_collision_with_edge)
     
     def on_collision_with_goal(self):
-        self.bullet_explode()
+        # i still have some strange exceptions because of multiple function calls:
+        if self.parent == None:
+            return
         self.parent.level_accomplished()
+        
+        self.bullet_explode()
         
         
         

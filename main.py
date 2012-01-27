@@ -30,6 +30,9 @@ from kivy.app import App
 from kivy.config import Config
 # for making screenshots with F12:
 Config.set('modules', 'keybinding', '')
+Config.set('graphics', 'width', '1920')
+Config.set('graphics', 'height', '1200')
+Config.set('graphics', 'fullscreen', '1')
 #Config.set('modules', 'inspector', '')
 from kivy.properties import ObjectProperty, StringProperty, NumericProperty
 from kivy.factory import Factory
@@ -68,11 +71,8 @@ from stockbar import Stockbar
 
 VERSION = '1.0'
 
-LEVEL_WIDTH = 17
+LEVEL_WIDTH = 16
 LEVEL_HEIGHT = 16
-
-LEVEL_OFFSET = [400, 50]
-BRICK_WIDTH = 65
 
 
 '''
@@ -170,9 +170,13 @@ class DeflectouchWidget(Widget):
         self.add_widget(self.bullet)
         self.bullet.fire()
     
+    
     def reset_button_pressed(self):
         # first kill the bullet
         if self.bullet != None:
+            self.bullet.unbind(pos=self.bullet.callback_pos)
+            self.bullet.animation.unbind(on_complete=self.bullet.on_collision_with_edge)
+            self.bullet.animation.stop(self.bullet)
             self.remove_widget(self.bullet)
             self.bullet = None
         
@@ -225,6 +229,7 @@ class DeflectouchWidget(Widget):
                       size_hint=(0.5, 0.5))
         popup.open()
     
+    
     def settings_button_pressed(self):
         pass #SOUND: CLICK LIKE IN GUNSHIP
         
@@ -233,8 +238,7 @@ class DeflectouchWidget(Widget):
             
             self.setting_popup = Popup(attach_to=self,
                                        title='DeflecTouch Settings',
-                                       size=(400, 400),
-                                       size_hint=(None, None))
+                                       size_hint=(0.3, 0.5))
             
             self.setting_dialog = SettingDialog(root=self)
             
@@ -245,6 +249,7 @@ class DeflectouchWidget(Widget):
             self.setting_dialog.speed_slider.value = boundary(self.app.config.getint('GamePlay', 'BulletSpeed'), 1, 10)
         
         self.setting_popup.open()
+        
         
     def display_help_screen(self):
         # display the help screen on a Popup
@@ -271,14 +276,13 @@ class DeflectouchWidget(Widget):
         
         # create an animation on the old bullets position:
         # bug: gif isn't transparent
-        '''
-        old_pos = self.bullet.center
-        self.bullet.anim_delay = 0.1
-        self.bullet.size = 96, 96
-        self.bullet.center = old_pos
-        self.bullet.source = 'graphics/explosion.gif'
-        Clock.schedule_once(self.bullet_exploded, 1)
-        '''
+        #old_pos = self.bullet.center
+        #self.bullet.anim_delay = 0.1
+        #self.bullet.size = 96, 96
+        #self.bullet.center = old_pos
+        #self.bullet.source = 'graphics/explosion.gif'
+        #Clock.schedule_once(self.bullet_exploded, 1)
+        
         self.remove_widget(self.bullet)
         self.bullet = None
         # or should i write del self.bullet instead?
@@ -286,6 +290,7 @@ class DeflectouchWidget(Widget):
         self.lives -= 1
         if self.lives == 0:
             self.reset_button_pressed()
+    
     
     def level_accomplished(self):
         pass #SOUND: ACCOMPLISHED (TOIOIOIOIO)
@@ -307,6 +312,7 @@ class DeflectouchWidget(Widget):
         animation.start(image)
         animation.bind(on_complete=self.accomplished_animation_complete)
     
+    
     def accomplished_animation_complete(self, animation, widget):
         self.remove_widget(widget)
         
@@ -315,10 +321,14 @@ class DeflectouchWidget(Widget):
         
         # no. just open the next level.
         if self.level != 40:
+            self.reset_button_pressed()
             self.load_level(self.level + 1)
         
     
     def load_level(self, level):
+        BRICK_WIDTH = self.height / 17.73
+        LEVEL_OFFSET = [self.center_x - (LEVEL_WIDTH/2) * BRICK_WIDTH, self.height / 12.5]
+        
         # i have to check if the function is called by a level button in the level popup OR with an int as argument:
         if not isinstance(level, int):
             level = int(level.text)
@@ -361,7 +371,7 @@ class DeflectouchWidget(Widget):
                     # create obstacle brick on white pixels
                     image = Image(source=('graphics/beta/brick%d.png' % randint(1, 4)),
                                   x = LEVEL_OFFSET[0] + x * BRICK_WIDTH,
-                                  y = LEVEL_OFFSET[1] + y * BRICK_WIDTH,
+                                  y = LEVEL_OFFSET[1] + (y-1) * BRICK_WIDTH,
                                   size = (BRICK_WIDTH, BRICK_WIDTH),
                                   allow_stretch = True)
                     self.obstacle_list.append(image)
@@ -372,7 +382,7 @@ class DeflectouchWidget(Widget):
                     # create a goal brick on blue pixels
                     image = Image(source=('graphics/beta/goal%d.png' % randint(1, 1)),
                                   x = LEVEL_OFFSET[0] + x * BRICK_WIDTH,
-                                  y = LEVEL_OFFSET[1] + y * BRICK_WIDTH,
+                                  y = LEVEL_OFFSET[1] + (y-1) * BRICK_WIDTH,
                                   size = (BRICK_WIDTH, BRICK_WIDTH),
                                   allow_stretch = True)
                     self.goal_list.append(image)
@@ -391,18 +401,20 @@ class DeflectouchWidget(Widget):
                 self.max_stock += 1
         
         # now i set up the stockbar widget:
-        self.max_stock = self.max_stock * 1527.0/LEVEL_WIDTH
+        self.max_stock = self.max_stock * self.width/1.4/LEVEL_WIDTH
         self.stockbar = Stockbar(max_stock=self.max_stock,
-                                 x=960-self.max_stock/2,
-                                 center_y=85)
+                                 x=self.center_x-self.max_stock/2,
+                                 center_y=self.height/15 + 20)
         self.add_widget(self.stockbar)
         
         # now start to build up the level:
         self.level_build_index = 0
-        Clock.schedule_interval(self.build_level, 0.002)
+        if len(self.obstacle_list) != 0:
+            Clock.schedule_interval(self.build_level, 0.5 / (len(self.obstacle_list) + len(self.goal_list)))
+        
         
     def build_level(self, instance):
-        if self.level_build_index % 5 == 0:
+        if self.level_build_index % int(0.02 / (0.5 / (len(self.obstacle_list) + len(self.goal_list)))) == 0:
             # play a sound every now and then:
             pass #SOUND: HIGH TEXT BLEEP
         
@@ -468,8 +480,8 @@ class Deflectouch(App):
    
     def build_config(self, config):
         config.adddefaultsection('General')
-        config.setdefault('General', 'Music', '50')
-        config.setdefault('General', 'Sound', '80')
+        config.setdefault('General', 'Music', '40')
+        config.setdefault('General', 'Sound', '100')
         config.setdefault('General', 'FirstStartup', 'Yes')
         
         config.adddefaultsection('GamePlay')
