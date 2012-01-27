@@ -69,9 +69,6 @@ class Deflector(Scatter):
         # First i create the line perfectly horizontal but with the correct length. Then i add the two
         # drag points at the beginning and the end.
         
-        #self.deflector_line.size = (self.length, 0)
-        #self.deflector_line.pos = self.touch1.pos
-        
         self.length_origin = self.length
         
         with self.canvas.before:
@@ -116,24 +113,23 @@ class Deflector(Scatter):
         
         self.point1.bind(size=self.size_callback)
     
-    def size_callback(self, instance, size):        
+    def size_callback(self, instance, size):
         # problem: if the points are resized (scatter resized them, kv-rule resized them back),
         # their center isn't on the touch point anymore.
         self.point1.pos = self.point_pos_origin[0] + (40 - size[0])/2, self.point_pos_origin[1] + (40 - size[0])/2
         self.point2.pos = self.point_pos_origin[2] + (40 - size[0])/2, self.point_pos_origin[3] + (40 - size[0])/2
         
-        # here comes the calculations of the remaining deflector material stock:
-        self.length = Vector(self.touch1.pos).distance(self.touch2.pos)
+        # feedback to the stockbar: reducing of the deflector material stock:
+        #self.length = Vector(self.touch1.pos).distance(self.touch2.pos)
+        self.length = self.length_origin * self.scale
+        self.parent.parent.stockbar.recalculate_stock()
         
         # get the current stock from the root widget:
         current_stock = self.parent.parent.stockbar.width
+        stock_for_me = current_stock + self.length
         
         # now set the limitation for scaling:
-        self.scale_max = (self.length_origin + current_stock) / self.length_origin
-        
-        # and if i'm allowed to do, decrease the stock bar
-        if current_stock > 0:
-            self.parent.parent.stockbar.recalculate_stock()
+        self.scale_max = stock_for_me / self.length_origin
         
         if self.length < MIN_DEFLECTOR_LENGTH:
             self.point1.source = 'graphics/beta/finger_point_red_beta.png'
@@ -145,6 +141,8 @@ class Deflector(Scatter):
         
     
     def collide_widget(self, wid):
+        point1_parent = self.to_parent(self.point1.pos[0], self.point1.pos[1])
+        point2_parent = self.to_parent(self.point2.pos[0], self.point2.pos[1])
         if max(self.point1.pos[0], self.point2.pos[0]) < wid.x:
             return False
         if min(self.point1.pos[0], self.point2.pos[0]) > wid.right:
@@ -159,6 +157,9 @@ class Deflector(Scatter):
         return min(self.point1.pos[0], self.point2.pos[0]) <= x <= max(self.point1.pos[0], self.point2.pos[0]) \
            and min(self.point1.pos[1], self.point2.pos[1]) <= y <= max(self.point1.pos[1], self.point2.pos[1])
     
+    def collide_end_point(self, x, y):
+        return min(self.point1.pos[0], self.point2.pos[0]) <= x <= max(self.point1.pos[0], self.point2.pos[0]) \
+           and min(self.point1.pos[1], self.point2.pos[1]) <= y <= max(self.point1.pos[1], self.point2.pos[1])
     
     '''
     ####################################

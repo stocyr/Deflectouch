@@ -51,27 +51,30 @@ class Background(Image):
     def on_touch_down(self, touch):
         ud = touch.ud
         
-        # the first time a touch occures, nothing happens. If a second finger is touching,
-        # create a deflector.
+        for deflector in self.parent.deflector_list:
+            if deflector.collide_point(*touch.pos):
+                print 'touch on deflector'
+                
+                # here comes the selection: do i want to pass the touches to the scatter?
+                # if i really pass it to a deflector:
+                return True
         
-        # search for a lonely touch
-        
-        pairing_made = False        
+        # if i didn't wanted to move / scale a deflector and but rather create a new one:
+        # search for other 'lonely' touches
+              
         for search_touch in EventLoop.touches[:]:
             if 'lonely' in search_touch.ud:
                 # so here we have a second touch: make a pairing.
                 del search_touch.ud['lonely']
-                print 'pairing made'
                 self.create_deflector(search_touch, touch)
-                pairing_made = True
+                return True
         
-        if pairing_made == False:
-            # if no second touch was found: tag the current one as 'lonely'
-            ud['lonely'] = True
-            #print 'lonely touch'
+        # if no second touch was found: tag the current one as a 'lonely' touch
+        ud['lonely'] = True
+        
     
     def create_deflector(self, touch_1, touch_2):
-        length = self.length_origin = Vector(touch_1.pos).distance(touch_2.pos)
+        length = Vector(touch_1.pos).distance(touch_2.pos)
         deflector = Deflector(touch1=touch_1, touch2=touch_2, length=length)
         self.parent.deflector_list.append(deflector)
         self.add_widget(deflector)
@@ -84,4 +87,10 @@ class Background(Image):
         
         self.remove_widget(deflector)
         self.parent.deflector_list.remove(deflector)
-        del deflector
+    
+    def delete_all_deflectors(self):
+        for deflector in self.parent.deflector_list:
+            self.remove_widget(deflector)
+        self.parent.deflector_list = []
+        
+        self.parent.stockbar.recalculate_stock()

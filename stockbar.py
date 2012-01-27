@@ -42,15 +42,9 @@ MIN_DEFLECTOR_LENGTH = 100
 class Stockbar(Image):
     max_stock = NumericProperty(0)
     
-    '''
-    ####################################
-    ##
-    ##   On Touch Down
-    ##
-    ####################################
-    '''
-    pass
-
+    new_deflectors_forbidden = False
+    
+    
     def recalculate_stock(self):
         # this function is called every time a deflector size is changing
         # first sum up all the deflectors on screen
@@ -63,16 +57,26 @@ class Stockbar(Image):
         self.width = self.max_stock - length_sum
         
         if self.width < MIN_DEFLECTOR_LENGTH:
+            # if the stock material doesn't suffice for a new deflector, disable new deflectors
             self.source = 'graphics/beta/deflector_red_beta2.png'
+            self.new_deflectors_forbidden = True
+        elif self.width <= 0:
+            # if all the stock material was used up, disable new deflectors AND limit scaling of the old ones.
+            self.new_deflectors_forbidden = True
+            #for deflector in self.parent.deflector_list:
+            #    deflector.scale_max = deflector.scale
         else:
             self.source = 'graphics/beta/deflector_blue_beta2.png'
+            self.new_deflectors_forbidden = False
+            # disable the scale limitation
+            #for deflector in self.parent.deflector_list:
+            #    deflector.scale_max = 100
     
     def new_deflector(self, length):
         # is called when a new deflector is created.
-        animation = Animation(width=self.width - length, t='out_elastic', duration=1)
-        animation.start(self)
+        self.width -= length
     
     def deflector_deleted(self, length):
-        # is called when a new deflector is created.
-        animation = Animation(width=self.width + length, t='out_elastic', duration=1)
-        animation.start(self)
+        self.width += length
+
+

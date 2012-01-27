@@ -173,8 +173,7 @@ class DeflectouchWidget(Widget):
             self.bullet = None
         
         # then delete all the deflectors.
-        for deflector in self.deflector_list:
-            self.background.delete_deflector(deflector)
+        self.background.delete_all_deflectors()
         
         # now the user can begin once again with 3 lives:
         self.lives = 3
@@ -297,8 +296,12 @@ class DeflectouchWidget(Widget):
     def accomplished_animation_complete(self, animation, widget):
         self.remove_widget(widget)
         
-        # open the level dialog
-        self.level_button_pressed()
+        # open the level dialog?
+        #self.level_button_pressed()
+        
+        # no. just open the next level.
+        if self.level != 40:
+            self.load_level(self.level + 1)
         
     
     def load_level(self, level):
@@ -316,11 +319,11 @@ class DeflectouchWidget(Widget):
         
         # First of all, delete the old level:
         for obstacle in self.obstacle_list:
-            self.remove_widget(obstacle)
+            self.background.remove_widget(obstacle)
         self.obstacle_list = []
         
         for goal in self.goal_list:
-            self.remove_widget(goal)
+            self.background.remove_widget(goal)
         self.goal_list = []
         
         if self.stockbar != None:
@@ -347,7 +350,7 @@ class DeflectouchWidget(Widget):
                                   size = (BRICK_WIDTH, BRICK_WIDTH),
                                   allow_stretch = True)
                     self.obstacle_list.append(image)
-                    self.add_widget(image)
+                    self.background.add_widget(image)
                 
                 elif color == [0, 0, 1]:
                     # create a goal brick on blue pixels
@@ -357,15 +360,15 @@ class DeflectouchWidget(Widget):
                                   size = (BRICK_WIDTH, BRICK_WIDTH),
                                   allow_stretch = True)
                     self.goal_list.append(image)
-                    self.add_widget(image)
+                    self.background.add_widget(image)
                     
         
         # but in the lowermost row there is also stored the value for the maximum stock 
         for x in range(LEVEL_WIDTH):
             color = level_image.read_pixel(x, 0)
             if len(color) > 3:
-                    # if there was transparency stored in the image, cut it.
-                    color.pop()
+                # if there was transparency stored in the image, cut it.
+                color.pop()
                     
             if color == [1, 0, 0]:
                 self.max_stock += 1
@@ -406,12 +409,18 @@ class Deflectouch(App):
         self.deflectouchwidget = DeflectouchWidget(app=self)
         self.root = self.deflectouchwidget
         
-        # continue on the last level who wasn't finished
+        # continue on the last level which wasn't finished
+        level_opened = False
         for counter, char  in enumerate(self.config.get('GamePlay', 'Levels')):
-            # if i found a level not yet done, continue with that
+            # if I found a level not yet done, continue with that
             if char == '0':
                 self.deflectouchwidget.load_level(counter + 1)
-                break;
+                level_opened = True
+                break
+        
+        # if all levels were completed, just open the last one.
+        if level_opened == False:
+            self.deflectouchwidget.load_level(40)
         
         # if the user started the game the first time, display quick start guide
         if self.config.get('General', 'FirstStartup') == 'Yes':

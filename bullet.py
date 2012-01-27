@@ -196,9 +196,8 @@ class Bullet(Image):
         # first check if there's a collision with deflectors:
         if not len(self.parent.deflector_list) == 0:
             for deflector in self.parent.deflector_list:
+                #print 'deflector on center=', deflector.center
                 if deflector.collide_widget(self):
-                    # if the bullet collides with the bounding box of a deflector
-                    # call check_deflector_collision and pass it the colliding instance
                     self.check_deflector_collision(deflector)
         
         # then check if there's a collision with the goal:
