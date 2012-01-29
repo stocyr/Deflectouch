@@ -30,15 +30,13 @@ from kivy.app import App
 from kivy.config import Config
 # for making screenshots with F12:
 Config.set('modules', 'keybinding', '')
-Config.set('graphics', 'width', '1920')
-Config.set('graphics', 'height', '1200')
-Config.set('graphics', 'fullscreen', '1')
 #Config.set('modules', 'inspector', '')
 from kivy.properties import ObjectProperty, StringProperty, NumericProperty
 from kivy.factory import Factory
 from kivy.utils import boundary
 from kivy.clock import Clock
 from kivy.animation import Animation
+from kivy.core.audio import SoundLoader
 
 from kivy.uix.image import Image
 from kivy.uix.widget import Widget
@@ -100,11 +98,14 @@ class SettingDialog(BoxLayout):
         # write to app configs
         self.root.app.config.set('General', 'Music', str(int(value)))
         self.root.app.config.write()
+        self.root.app.music.volume = value / 100.0
     
     def update_sound_volume(self, instance, value):
         # write to app configs
         self.root.app.config.set('General', 'Sound', str(int(value)))
         self.root.app.config.write()
+        for item in self.root.app.sound:
+            self.root.app.sound[item].volume = value / 100.0
     
     def update_speed(self, instance, value):
         # write to app configs
@@ -159,7 +160,7 @@ class DeflectouchWidget(Widget):
             # don't fire.
             return
         
-        pass #SOUND: BULLET STARTED (BHHHOUUUU, VIEL WIND)
+        self.app.sound['bullet_start'].play()
         
         # create a bullet, calculate the start position and fire it.
         tower_angle = radians(self.tank.tank_tower_scatter.rotation)
@@ -172,25 +173,13 @@ class DeflectouchWidget(Widget):
     
     
     def reset_button_pressed(self):
-        # first kill the bullet
-        if self.bullet != None:
-            self.bullet.unbind(pos=self.bullet.callback_pos)
-            self.bullet.animation.unbind(on_complete=self.bullet.on_collision_with_edge)
-            self.bullet.animation.stop(self.bullet)
-            self.remove_widget(self.bullet)
-            self.bullet = None
+        self.app.sound['reset'].play()
         
-        pass #SOUND: LEVEL RESET (sssSSSSUP, EINSAUGEN)
-        
-        # then delete all the deflectors.
-        self.background.delete_all_deflectors()
-        
-        # now the user can begin once again with 3 lives:
-        self.lives = 3
+        self.reset_level()
         
     
     def level_button_pressed(self):
-        pass #SOUND: CLICK LIKE IN GUNSHIP
+        self.app.sound['switch'].play()
         
         # create a popup with all the levels
         grid_layout = GridLayout(cols=8,rows=5,spacing=10, padding=10)
@@ -231,10 +220,10 @@ class DeflectouchWidget(Widget):
     
     
     def settings_button_pressed(self):
-        pass #SOUND: CLICK LIKE IN GUNSHIP
+        self.app.sound['switch'].play()
         
         # the first time the setting dialog is called, initialize its content.
-        if self.setting_popup == None:
+        if self.setting_popup is None:
             
             self.setting_popup = Popup(attach_to=self,
                                        title='DeflecTouch Settings',
@@ -272,7 +261,7 @@ class DeflectouchWidget(Widget):
     '''
     
     def bullet_exploding(self):
-        pass #SOUND: BULLET EXPLOSION
+        self.app.sound['explosion'].play()
         
         # create an animation on the old bullets position:
         # bug: gif isn't transparent
@@ -293,7 +282,7 @@ class DeflectouchWidget(Widget):
     
     
     def level_accomplished(self):
-        pass #SOUND: ACCOMPLISHED (TOIOIOIOIO)
+        self.app.sound['accomplished'].play()
         
         # store score in config: (i have to convert the string to a list to do specific char writing)
         levels_before = list(self.app.config.get('GamePlay', 'Levels'))
@@ -321,9 +310,24 @@ class DeflectouchWidget(Widget):
         
         # no. just open the next level.
         if self.level != 40:
-            self.reset_button_pressed()
+            self.reset_level()
             self.load_level(self.level + 1)
         
+    def reset_level(self):
+        # first kill the bullet
+        if self.bullet != None:
+            self.bullet.unbind(pos=self.bullet.callback_pos)
+            self.bullet.animation.unbind(on_complete=self.bullet.on_collision_with_edge)
+            self.bullet.animation.stop(self.bullet)
+            self.remove_widget(self.bullet)
+            self.bullet = None
+        
+        # then delete all the deflectors.
+        self.background.delete_all_deflectors()
+        
+        # now the user can begin once again with 3 lives:
+        self.lives = 3
+    
     
     def load_level(self, level):
         BRICK_WIDTH = self.height / 17.73
@@ -333,7 +337,7 @@ class DeflectouchWidget(Widget):
         if not isinstance(level, int):
             level = int(level.text)
             # and if the function was called by a button, play a sound
-            pass #SOUND: LEVEL SELECT
+            self.app.sound['select'].play()
         
         # try to lead the level image
         try:
@@ -410,13 +414,13 @@ class DeflectouchWidget(Widget):
         # now start to build up the level:
         self.level_build_index = 0
         if len(self.obstacle_list) != 0:
-            Clock.schedule_interval(self.build_level, 0.5 / (len(self.obstacle_list) + len(self.goal_list)))
+            Clock.schedule_interval(self.build_level, 0.01)
         
         
     def build_level(self, instance):
-        if self.level_build_index % int(0.02 / (0.5 / (len(self.obstacle_list) + len(self.goal_list)))) == 0:
+        #if self.level_build_index % int(0.02 / (0.5 / (len(self.obstacle_list) + len(self.goal_list)))) == 0:
             # play a sound every now and then:
-            pass #SOUND: HIGH TEXT BLEEP
+        self.app.sound['beep'].play()
         
         if self.level_build_index < len(self.obstacle_list):
             self.background.add_widget(self.obstacle_list[self.level_build_index])
@@ -444,6 +448,9 @@ class Deflectouch(App):
     title = 'Deflectouch'
     icon = 'icon.png'
     
+    sound = {}
+    music = None
+    
     
     def build(self):
         # print the application informations
@@ -455,6 +462,33 @@ class Deflectouch(App):
         # create the root widget and give it a reference of the application instance (so it can access the application settings)
         self.deflectouchwidget = DeflectouchWidget(app=self)
         self.root = self.deflectouchwidget
+        
+        
+        # start the background music:
+        self.music = SoundLoader.load('sound/deflectouch.ogg')
+        self.music.volume = self.config.getint('General', 'Music') / 100.0
+        self.music.play()
+        
+        # load all other sounds:
+        self.sound['switch'] = SoundLoader.load('sound/switch.ogg')
+        self.sound['select'] = SoundLoader.load('sound/select.ogg')
+        self.sound['reset'] = SoundLoader.load('sound/reset.ogg')
+        self.sound['beep'] = SoundLoader.load('sound/beep.ogg')
+        
+        self.sound['bullet_start'] = SoundLoader.load('sound/bullet_start.ogg')
+        self.sound['explosion'] = SoundLoader.load('sound/explosion.ogg')
+        self.sound['accomplished'] = SoundLoader.load('sound/accomplished.ogg')
+        
+        self.sound['no_deflector'] = SoundLoader.load('sound/no_deflector.ogg')
+        self.sound['deflector_new'] = SoundLoader.load('sound/deflector_new.ogg')
+        self.sound['deflector_down'] = SoundLoader.load('sound/deflector_down.ogg')
+        self.sound['deflector_up'] = SoundLoader.load('sound/deflector_up.ogg')
+        self.sound['deflector_delete'] = SoundLoader.load('sound/deflector_delete.ogg')
+        self.sound['deflection'] = SoundLoader.load('sound/deflection.ogg')
+        
+        sound_volume = self.config.getint('General', 'Sound') / 100.0
+        for item in self.sound:
+            self.sound[item].volume = sound_volume
         
         # continue on the last level which wasn't finished
         level_opened = False

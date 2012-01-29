@@ -1,7 +1,0 @@
-- TODO: set initial tank position to the exact middle of the screen on the left.
-- TODO: set up the whole window as a fixed size (1024x768) fullscreen with black border -> set kivy settings on top of the main file
-- TODO: set github repository description
-- FEATURE: licht am ende des tunnels: man kann im kv-file ein rechteck auch rotieren: s. 184
-- NOTE: if changing the end_point_size: change it in the deflector size_callback too
-- BUG: the missing collision if the deflector is nearly horizontal
-- TODO: help + about button

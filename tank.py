@@ -28,7 +28,6 @@ kivy.require('1.0.9')
 
 from kivy.properties import ObjectProperty
 from kivy.graphics.transformation import Matrix
-from kivy.graphics import Point, Rectangle
 from kivy.uix.widget import Widget
 
 from kivy.utils import boundary

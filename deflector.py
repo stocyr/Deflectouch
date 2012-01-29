@@ -179,7 +179,9 @@ class Deflector(Scatter):
     ####################################
     '''
     def on_touch_down(self, touch):
-        pass #SOUND: DEFLECTOR DOWN
+        if self.parent.parent.app.sound['deflector_down'].status != 'play':
+            self.parent.parent.app.sound['deflector_down'].play()
+        
         return super(Deflector, self).on_touch_down(touch)
     
     '''
@@ -195,7 +197,10 @@ class Deflector(Scatter):
             self.parent.delete_deflector(self)
             return True
         
-        pass #SOUND: DEFLECTOR UP
+        if self.parent != None and self.collide_grab_point(*touch.pos):
+            if self.parent.parent.app.sound['deflector_up'].status != 'play':
+                self.parent.parent.app.sound['deflector_up'].play()
+        
         return super(Deflector, self).on_touch_up(touch)
 
 

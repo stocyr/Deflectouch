@@ -26,7 +26,7 @@ along with Deflectouch.  If not, see <http://www.gnu.org/licenses/>.
 import kivy
 kivy.require('1.0.9')
 
-from kivy.properties import NumericProperty, ObjectProperty
+from kivy.properties import NumericProperty
 from kivy.uix.image import Image
 from kivy.animation import Animation
 from kivy.graphics import Color, Point
@@ -57,7 +57,6 @@ class Bullet(Image):
         super(Bullet, self).__init__(**kwargs)
         
     def fire(self):
-        print '################# FIRE ##################'
         destination = self.calc_destination(self.angle)
         speed = boundary(self.parent.app.config.getint('GamePlay', 'BulletSpeed'), 1, 10)
         self.animation = self.create_animation(speed, destination)
@@ -170,7 +169,6 @@ class Bullet(Image):
         
         # now we finally check if the bullet is close enough to the deflector line:
         distance = abs(sin(radians(bullet_direction.angle(deflector_vector)) % (pi/2))) * Vector(intersection - bullet_position).length()
-        print distance
         if distance < (self.width / 2):
             # there is a collision!
             # kill the animation!
@@ -189,7 +187,6 @@ class Bullet(Image):
         # first check if there's a collision with deflectors:
         if not len(self.parent.deflector_list) == 0:
             for deflector in self.parent.deflector_list:
-                #print 'deflector on center=', deflector.center
                 if deflector.collide_widget(self):
                     self.check_deflector_collision(deflector)
                     return
@@ -226,9 +223,7 @@ class Bullet(Image):
         self.bullet_explode()
     
     def on_collision_with_deflector(self, deflector, deflector_vector):
-        print 'deflector'
-        
-        pass #SOUND: DEFLECTOR
+        self.parent.app.sound['deflection'].play()
         
         # flash up the deflector
         Animation.stop_all(deflector.point1, 'color')
@@ -253,7 +248,7 @@ class Bullet(Image):
     
     def on_collision_with_goal(self):
         # i still have some strange exceptions because of multiple function calls:
-        if self.parent == None:
+        if self.parent is None:
             return
         self.parent.level_accomplished()
         

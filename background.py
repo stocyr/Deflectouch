@@ -75,8 +75,10 @@ class Background(Image):
                     # create only a new one if he's not too big and not too small
                     if MIN_DEFLECTOR_LENGTH <= length <= self.parent.stockbar.width:
                         self.create_deflector(search_touch, touch, length)
+                    else:
+                        self.parent.app.sound['no_deflector'].play()
                 else:
-                    pass #SOUND: NO NEW DEFLECTOR
+                    self.parent.app.sound['no_deflector'].play()
                 
                 return True
         
@@ -85,7 +87,7 @@ class Background(Image):
         
     
     def create_deflector(self, touch_1, touch_2, length):
-        pass #SOUND: NEW DEFLECTOR
+        self.parent.app.sound['deflector_new'].play()
         deflector = Deflector(touch1=touch_1, touch2=touch_2, length=length)
         self.parent.deflector_list.append(deflector)
         self.add_widget(deflector)
@@ -94,7 +96,7 @@ class Background(Image):
         
     
     def delete_deflector(self, deflector):
-        pass #SOUND: DELETE DEFLECTOR
+        self.parent.app.sound['deflector_delete'].play()
         self.parent.stockbar.deflector_deleted(deflector.length)
         
         self.remove_widget(deflector)
