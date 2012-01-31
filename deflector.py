@@ -123,8 +123,10 @@ class Deflector(Scatter):
         # feedback to the stockbar: reducing of the deflector material stock:
         #self.length = Vector(self.touch1.pos).distance(self.touch2.pos)
         self.length = self.length_origin * self.scale
-        self.parent.parent.stockbar.recalculate_stock()
-        
+        try:
+            self.parent.parent.stockbar.recalculate_stock()
+        except Exception, e:
+            return
         # get the current stock from the root widget:
         current_stock = self.parent.parent.stockbar.width
         stock_for_me = current_stock + self.length

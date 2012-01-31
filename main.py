@@ -165,7 +165,7 @@ class DeflectouchWidget(Widget):
         # create a bullet, calculate the start position and fire it.
         tower_angle = radians(self.tank.tank_tower_scatter.rotation)
         tower_position = self.tank.pos
-        bullet_position = (tower_position[0] + 46 + cos(tower_angle) * 130, tower_position[1] + 75 + sin(tower_angle) * 130)
+        bullet_position = (tower_position[0] + 48 + cos(tower_angle) * 130, tower_position[1] + 70 + sin(tower_angle) * 130)
         self.bullet = Bullet(angle=tower_angle)
         self.bullet.center = bullet_position
         self.add_widget(self.bullet)
@@ -312,7 +312,7 @@ class DeflectouchWidget(Widget):
         if self.level != 40:
             if self.level % 8 == 0:
                 # if it was the last level of one row, another row has been unlocked!
-                Popup(title='New levels unlocked!', content=Label(text='Next 8 levels unlocked!', font_size=18), size_hint=(0.2, 0.15)).open()
+                Popup(title='New levels unlocked!', content=Label(text='Next 8 levels unlocked!', font_size=18), size_hint=(0.3, 0.15)).open()
             
             self.reset_level()
             self.load_level(self.level + 1)

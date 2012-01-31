@@ -1,9 +1,9 @@
 Deflectouch
 ==============
 
-![game play](http://a4.sphotos.ak.fbcdn.net/hphotos-ak-ash4/336216_290902887635727_1130435368_o.jpg)__
+![game play](http://a4.sphotos.ak.fbcdn.net/hphotos-ak-ash4/336216_290902887635727_1130435368_o.jpg)
 ![help screen](http://a6.sphotos.ak.fbcdn.net/hphotos-ak-ash4/412143_290904047635611_100001480546056_829367_173788384_o.jpg)
-![levels](http://a8.sphotos.ak.fbcdn.net/hphotos-ak-ash4/325221_290902854302397_100001480546056_829364_127504812_o.jpg)__
+![levels](http://a8.sphotos.ak.fbcdn.net/hphotos-ak-ash4/325221_290902854302397_100001480546056_829364_127504812_o.jpg)
 ![settings](http://a2.sphotos.ak.fbcdn.net/hphotos-ak-snc7/324444_290902874302395_100001480546056_829365_1671324817_o.jpg)
 
 
