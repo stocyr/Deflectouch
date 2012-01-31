@@ -1,7 +1,11 @@
 Deflectouch
 ==============
 
-[Screenshots]
+![game play](http://a4.sphotos.ak.fbcdn.net/hphotos-ak-ash4/336216_290902887635727_1130435368_o.jpg)__
+![help screen](http://a6.sphotos.ak.fbcdn.net/hphotos-ak-ash4/412143_290904047635611_100001480546056_829367_173788384_o.jpg)
+![levels](http://a8.sphotos.ak.fbcdn.net/hphotos-ak-ash4/325221_290902854302397_100001480546056_829364_127504812_o.jpg)__
+![settings](http://a2.sphotos.ak.fbcdn.net/hphotos-ak-snc7/324444_290902874302395_100001480546056_829365_1671324817_o.jpg)
+
 
 READ THIS FIRST
 ---------------
@@ -16,15 +20,6 @@ http://kivy.org/docs/installation/installation.html
 heavily summarized version of the above one.
 
 
-How to play
------------
-
-
-How to design own levels
-------------------------
-
-
-
 Copyright and Contact
 ---------------------
 
@@ -36,6 +31,18 @@ see the source code for details.
 
 For comments, suggestions or other messages contact me at:
 cyril.stoller@gmail.com
+
+
+Credits
+-------
+
+* Sound:
+  * beep.ogg, reset.ogg, select.ogg and switch.ogg are from the game *GUNSHIP!* from Microprose
+  * All other sound files are created by myself
+* Music:
+  * The deflectouch.ogg song is created by myself
+* Images:
+  * www.gestureworks.com
 
 
 Release Notes

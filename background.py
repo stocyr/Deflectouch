@@ -107,4 +107,5 @@ class Background(Image):
             self.remove_widget(deflector)
         self.parent.deflector_list = []
         
-        self.parent.stockbar.recalculate_stock()
+        if self.parent.stockbar is not None:        
+            self.parent.stockbar.recalculate_stock()

@@ -78,11 +78,11 @@ class Tank(Widget):
             # if the current touch is already in the 'rotate' mode, rotate the tower.
             dx = touch.x - self.center_x
             dy = touch.y - self.center_y
-            angle = boundary(atan2(dy, dx) * 360 / 2 / pi, -80, 80)
+            angle = boundary(atan2(dy, dx) * 360 / 2 / pi, -60, 60)
             
             angle_change = self.tank_tower_scatter.rotation - angle
             rotation_matrix = Matrix().rotate(-radians(angle_change), 0, 0, 1)
-            self.tank_tower_scatter.apply_transform(rotation_matrix, post_multiply=True, anchor=(98, 38))
+            self.tank_tower_scatter.apply_transform(rotation_matrix, post_multiply=True, anchor=(105, 15))
         
         elif touch.x > self.right:
             # if the finger moved too far to the right go into rotation mode

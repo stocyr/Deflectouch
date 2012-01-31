@@ -242,11 +242,11 @@ class DeflectouchWidget(Widget):
         
     def display_help_screen(self):
         # display the help screen on a Popup
-        image = Image(source='graphics/beta/help_screen_beta.png')
+        image = Image(source='graphics/help_screen.png')
         
         help_screen = Popup(title='Quick Guide through DEFLECTOUCH',
                             attach_to=self,
-                            size_hint=(0.95, 0.95),
+                            size_hint=(0.98, 0.98),
                             content=image)
         image.bind(on_touch_down=help_screen.dismiss)
         help_screen.open()
@@ -278,7 +278,7 @@ class DeflectouchWidget(Widget):
         
         self.lives -= 1
         if self.lives == 0:
-            self.reset_button_pressed()
+            self.reset_level()
     
     
     def level_accomplished(self):
@@ -339,7 +339,7 @@ class DeflectouchWidget(Widget):
             # and if the function was called by a button, play a sound
             self.app.sound['select'].play()
         
-        # try to lead the level image
+        # try to load the level image
         try:
             level_image = kivy.core.image.Image.load('levels/level%02d.png' % level, keep_data=True)
         except Exception, e:
@@ -348,6 +348,8 @@ class DeflectouchWidget(Widget):
             return
         
         # First of all, delete the old level:
+        self.reset_level()
+        
         for obstacle in self.obstacle_list:
             self.background.remove_widget(obstacle)
         self.obstacle_list = []
@@ -373,7 +375,7 @@ class DeflectouchWidget(Widget):
                 
                 if color == [0, 0, 0]:
                     # create obstacle brick on white pixels
-                    image = Image(source=('graphics/beta/brick%d.png' % randint(1, 4)),
+                    image = Image(source=('graphics/brick%d.png' % randint(1, 4)),
                                   x = LEVEL_OFFSET[0] + x * BRICK_WIDTH,
                                   y = LEVEL_OFFSET[1] + (y-1) * BRICK_WIDTH,
                                   size = (BRICK_WIDTH, BRICK_WIDTH),
@@ -384,7 +386,7 @@ class DeflectouchWidget(Widget):
                 
                 elif color == [0, 0, 1]:
                     # create a goal brick on blue pixels
-                    image = Image(source=('graphics/beta/goal%d.png' % randint(1, 1)),
+                    image = Image(source=('graphics/goal%d.png' % randint(1, 4)),
                                   x = LEVEL_OFFSET[0] + x * BRICK_WIDTH,
                                   y = LEVEL_OFFSET[1] + (y-1) * BRICK_WIDTH,
                                   size = (BRICK_WIDTH, BRICK_WIDTH),
@@ -408,7 +410,7 @@ class DeflectouchWidget(Widget):
         self.max_stock = self.max_stock * self.width/1.4/LEVEL_WIDTH
         self.stockbar = Stockbar(max_stock=self.max_stock,
                                  x=self.center_x-self.max_stock/2,
-                                 center_y=self.height/15 + 20)
+                                 center_y=self.height/16 + 20)
         self.add_widget(self.stockbar)
         
         # now start to build up the level:
@@ -467,6 +469,7 @@ class Deflectouch(App):
         # start the background music:
         self.music = SoundLoader.load('sound/deflectouch.ogg')
         self.music.volume = self.config.getint('General', 'Music') / 100.0
+        self.music.bind(on_stop=self.sound_replay)
         self.music.play()
         
         # load all other sounds:
@@ -524,6 +527,10 @@ class Deflectouch(App):
     
     def welcome_screen(self, instance):
         self.root.display_help_screen()
+    
+    def sound_replay(self, instance):
+        if self.music.status != 'play':
+            self.music.play()
 
 
 if __name__ in ('__main__', '__android__'):

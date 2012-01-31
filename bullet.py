@@ -81,10 +81,10 @@ class Bullet(Image):
     def calc_destination(self, angle):
         # calculate the path until the bullet hits the edge of the screen
         win = self.get_parent_window()
-        left = 130
-        right = win.width - 144
-        top = win.height - 23
-        bottom = 96
+        left = 150.0 * win.width / 1920.0
+        right = win.width - 236.0 * win.width / 1920.0
+        top = win.height - 50.0 * win.height / 1920.0
+        bottom = 96.0 * win.height / 1920.0
         
         bullet_x_to_right = right - self.center_x
         bullet_x_to_left = left - self.center_x

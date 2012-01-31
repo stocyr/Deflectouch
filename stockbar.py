@@ -57,13 +57,13 @@ class Stockbar(Image):
         
         if self.width < MIN_DEFLECTOR_LENGTH:
             # if the stock material doesn't suffice for a new deflector, disable new deflectors
-            self.source = 'graphics/beta/deflector_red_beta2.png'
+            self.source = 'graphics/deflector_red.png'
             self.new_deflectors_allowed = False
         elif self.width <= 0:
             # if all the stock material was used up, disable new deflectors
             self.new_deflectors_allowed = False
         else:
-            self.source = 'graphics/beta/deflector_blue_beta2.png'
+            self.source = 'graphics/deflector_blue.png'
             self.new_deflectors_allowed = True
     
     def new_deflector(self, length):
