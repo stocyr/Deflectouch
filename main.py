@@ -310,8 +310,13 @@ class DeflectouchWidget(Widget):
         
         # no. just open the next level.
         if self.level != 40:
+            if self.level % 8 == 0:
+                # if it was the last level of one row, another row has been unlocked!
+                Popup(title='New levels unlocked!', content=Label(text='Next 8 levels unlocked!', font_size=18), size_hint=(0.2, 0.15)).open()
+            
             self.reset_level()
             self.load_level(self.level + 1)
+            
         
     def reset_level(self):
         # first kill the bullet
