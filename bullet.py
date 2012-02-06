@@ -75,7 +75,7 @@ class Bullet(Image):
         # NOTE: THE DIFFERENCE BETWEEN TWO RENDERED ANIMATION STEPS
         # MUST *NOT* EXCESS THE RADIUS OF THE BULLET! OTHERWISE I
         # HAVE PROBLEMS DETECTING A COLLISION WITH A DEFLECTOR!!
-        time = Vector(self.center).distance(destination) / (speed * 40)
+        time = Vector(self.center).distance(destination) / (speed * 30)
         return Animation(pos=destination, duration=time)
         
     def calc_destination(self, angle):

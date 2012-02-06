@@ -7,6 +7,10 @@ Deflectouch
 ![settings](http://a2.sphotos.ak.fbcdn.net/hphotos-ak-snc7/324444_290902874302395_100001480546056_829365_1671324817_o.jpg)
 
 
+**[Thread on NUI-group](http://nuigroup.com/forums/viewthread/13600/)**
+
+**[Youtube video](http://www.youtube.com/watch?v=1Qa98oSPgi0)**
+
 READ THIS FIRST
 ---------------
 
