@@ -346,7 +346,7 @@ class DeflectouchWidget(Widget):
         
         # try to load the level image
         try:
-            level_image = kivy.core.image.Image.load('levels/level%02d.png' % level, keep_data=True)
+            level_image = kivy.core.image.Image.load(self.app.directory + '/levels/level%02d.png' % level, keep_data=True)
         except Exception, e:
             error_text = 'Unable to load Level %d!\n\nReason: %s' % (level, e)
             Popup(title='Level loading error:', content=Label(text=error_text, font_size=18), size_hint=(0.3, 0.2)).open()
