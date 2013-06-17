@@ -27,10 +27,6 @@ import kivy
 kivy.require('1.0.9')
 
 from kivy.app import App
-from kivy.config import Config
-# for making screenshots with F12:
-Config.set('modules', 'keybinding', '')
-#Config.set('modules', 'inspector', '')
 from kivy.properties import ObjectProperty, StringProperty, NumericProperty
 from kivy.factory import Factory
 from kivy.utils import boundary
@@ -465,6 +461,10 @@ class Deflectouch(App):
         print 'This program comes with ABSOLUTELY NO WARRANTY'
         print 'This is free software, and you are welcome to redistribute it'
         print 'under certain conditions; see the source code for details.\n'
+
+        from kivy.base import EventLoop
+        EventLoop.ensure_window()
+        self.window = EventLoop.window
         
         # create the root widget and give it a reference of the application instance (so it can access the application settings)
         self.deflectouchwidget = DeflectouchWidget(app=self)
