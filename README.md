@@ -6,7 +6,6 @@ Deflectouch
 ![levels](screenshots/levels.jpg)
 ![settings](screenshots/settings.jpg)
 
-
 **[Thread on NUI-group](http://nuigroup.com/forums/viewthread/13600/)**
 
 **[Youtube video](http://www.youtube.com/watch?v=1Qa98oSPgi0)**
