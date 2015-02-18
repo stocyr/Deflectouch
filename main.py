@@ -24,7 +24,7 @@ along with Deflectouch.  If not, see <http://www.gnu.org/licenses/>.
 
 
 import kivy
-kivy.require('1.0.9')
+kivy.require('1.8.0')
 
 from kivy.app import App
 from kivy.properties import ObjectProperty, StringProperty, NumericProperty
