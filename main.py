@@ -363,11 +363,11 @@ class DeflectouchWidget(Widget):
             self.remove_widget(self.stockbar)
         self.max_stock = 0
         
-        # set level inital state
+        # set level initial state
         self.lives = 3
         self.level = level
         
-        for y in range(LEVEL_HEIGHT, 0, -1):
+        for y in range(LEVEL_HEIGHT):
             for x in range(LEVEL_WIDTH):
                 color = level_image.read_pixel(x, y)
                 if len(color) > 3:
@@ -378,7 +378,7 @@ class DeflectouchWidget(Widget):
                     # create obstacle brick on white pixels
                     image = Image(source=('graphics/brick%d.png' % randint(1, 4)),
                                   x = LEVEL_OFFSET[0] + x * BRICK_WIDTH,
-                                  y = LEVEL_OFFSET[1] + (y-1) * BRICK_WIDTH,
+                                  y = LEVEL_OFFSET[1] + (LEVEL_HEIGHT-1-y) * BRICK_WIDTH,
                                   size = (BRICK_WIDTH, BRICK_WIDTH),
                                   allow_stretch = True)
                     self.obstacle_list.append(image)
@@ -389,7 +389,7 @@ class DeflectouchWidget(Widget):
                     # create a goal brick on blue pixels
                     image = Image(source=('graphics/goal%d.png' % randint(1, 4)),
                                   x = LEVEL_OFFSET[0] + x * BRICK_WIDTH,
-                                  y = LEVEL_OFFSET[1] + (y-1) * BRICK_WIDTH,
+                                  y = LEVEL_OFFSET[1] + (LEVEL_HEIGHT-1-y) * BRICK_WIDTH,
                                   size = (BRICK_WIDTH, BRICK_WIDTH),
                                   allow_stretch = True)
                     self.goal_list.append(image)
@@ -399,7 +399,7 @@ class DeflectouchWidget(Widget):
         
         # but in the lowermost row there is also stored the value for the maximum stock 
         for x in range(LEVEL_WIDTH):
-            color = level_image.read_pixel(x, 0)
+            color = level_image.read_pixel(x, LEVEL_HEIGHT)
             if len(color) > 3:
                 # if there was transparency stored in the image, cut it.
                 color.pop()
@@ -407,7 +407,7 @@ class DeflectouchWidget(Widget):
             if color == [1, 0, 0]:
                 self.max_stock += 1
         
-        # now i set up the stockbar widget:
+        # now set up the stockbar widget:
         self.max_stock = self.max_stock * self.width/1.4/LEVEL_WIDTH
         self.stockbar = Stockbar(max_stock=self.max_stock,
                                  x=self.center_x-self.max_stock/2,
