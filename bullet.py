@@ -67,7 +67,6 @@ class Bullet(Image):
         
         # start to track the position changes
         self.bind(pos=self.callback_pos)
-        
     
     def create_animation(self, speed, destination):
         # create the animation
@@ -75,12 +74,15 @@ class Bullet(Image):
         # NOTE: THE DIFFERENCE BETWEEN TWO RENDERED ANIMATION STEPS
         # MUST *NOT* EXCESS THE RADIUS OF THE BULLET! OTHERWISE I
         # HAVE PROBLEMS DETECTING A COLLISION WITH A DEFLECTOR!!
-        time = Vector(self.center).distance(destination) / (speed * 30)
-        return Animation(pos=destination, duration=time)
+        time = Vector(self.center).distance(destination) / (speed * +70.0)
+        # the splitting of the position animation in (x,y) is a work-around for the kivy issue #2667 for version < 1.9.0
+        return Animation(x=destination[0],y=destination[1], duration=time, transition='linear')
         
     def calc_destination(self, angle):
         # calculate the path until the bullet hits the edge of the screen
         win = self.get_parent_window()
+        # the following "magic numbers" are based on the dimensions of the
+        # cutting of the image 'overlay.png'
         left = 150.0 * win.width / 1920.0
         right = win.width - 236.0 * win.width / 1920.0
         top = win.height - 50.0 * win.height / 1920.0
@@ -95,7 +97,7 @@ class Bullet(Image):
         destination_y = 0
         
             
-        # this is a little bit ugly, but i couldn't find a nicer way in the hurry
+        # this is a little bit ugly, but I couldn't find a nicer way in the hurry
         if 0 <= self.angle < pi/2:
             # 1st quadrant
             if self.angle == 0:
@@ -253,15 +255,4 @@ class Bullet(Image):
         self.parent.level_accomplished()
         
         self.bullet_explode()
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         
