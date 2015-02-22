@@ -1,7 +1,7 @@
 '''
 Deflectouch
 
-Copyright (C) 2012  Cyril Stoller
+Copyright (C) 2012 2015  Cyril Stoller
 
 For comments, suggestions or other messages, contact me at:
 <cyril.stoller@gmail.com>
@@ -24,7 +24,7 @@ along with Deflectouch.  If not, see <http://www.gnu.org/licenses/>.
 
 
 import kivy
-kivy.require('1.0.9')
+kivy.require('1.8.0')
 
 from kivy.properties import NumericProperty
 from kivy.uix.image import Image

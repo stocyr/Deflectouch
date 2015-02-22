@@ -1,7 +1,7 @@
 '''
 Deflectouch
 
-Copyright (C) 2012  Cyril Stoller
+Copyright (C) 2012 2015  Cyril Stoller
 
 For comments, suggestions or other messages, contact me at:
 <cyril.stoller@gmail.com>
@@ -63,7 +63,7 @@ from stockbar import Stockbar
 ####################################
 '''
 
-VERSION = '1.0'
+VERSION = '1.1'
 
 LEVEL_WIDTH = 16
 LEVEL_HEIGHT = 16
@@ -457,7 +457,7 @@ class Deflectouch(App):
     
     def build(self):
         # print the application informations
-        print '\nDeflectouch v%s  Copyright (C) 2012  Cyril Stoller' % VERSION
+        print '\nDeflectouch v%s  Copyright (C) 2012 2015  Cyril Stoller' % VERSION
         print 'This program comes with ABSOLUTELY NO WARRANTY'
         print 'This is free software, and you are welcome to redistribute it'
         print 'under certain conditions; see the source code for details.\n'

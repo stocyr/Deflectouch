@@ -1,14 +1,16 @@
 Deflectouch
 ==============
 
+![banner](screenshots/banner.png)
+
+**[Youtube video](http://www.youtube.com/watch?v=1Qa98oSPgi0)**
+
 ![game play](screenshots/gameplay.jpg)
 ![help screen](graphics/help_screen.png)
 ![levels](screenshots/levels.jpg)
 ![settings](screenshots/settings.jpg)
 
 **[Thread on NUI-group](http://nuigroup.com/forums/viewthread/13600/)**
-
-**[Youtube video](http://www.youtube.com/watch?v=1Qa98oSPgi0)**
 
 READ THIS FIRST
 ---------------
@@ -26,7 +28,7 @@ heavily summarized version of the above one.
 Copyright and Contact
 ---------------------
 
-Deflectouch Copyright (C) 2012 Cyril Stoller
+Deflectouch Copyright (C) 2012 2015 Cyril Stoller
 
 This program comes with ABSOLUTELY NO WARRANTY. This is free software,
 and you are welcome to redistribute it under certain conditions;
@@ -53,5 +55,6 @@ Release Notes
 
 Release history:
 
+* **V1.1**: *bug fixes, preparations for release on Google Play Store*
 * **V1.0**: *first released version*
 
