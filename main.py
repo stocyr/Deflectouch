@@ -63,7 +63,7 @@ from stockbar import Stockbar
 ####################################
 '''
 
-VERSION = '1.1'
+VERSION = '1.1.2'
 
 LEVEL_WIDTH = 16
 LEVEL_HEIGHT = 16
@@ -449,13 +449,11 @@ Factory.register("Stockbar", Stockbar)
 '''
 class Deflectouch(App):
     title = 'Deflectouch'
-    icon = 'icon.png'
-    
     sound = {}
     music = None
     
-    
     def build(self):
+        self.icon = 'icon.png'
         # print the application informations
         print '\nDeflectouch v%s  Copyright (C) 2012 2015  Cyril Stoller' % VERSION
         print 'This program comes with ABSOLUTELY NO WARRANTY'
@@ -522,7 +520,7 @@ class Deflectouch(App):
    
     def build_config(self, config):
         config.adddefaultsection('General')
-        config.setdefault('General', 'Music', '40')
+        config.setdefault('General', 'Music', '100')
         config.setdefault('General', 'Sound', '100')
         config.setdefault('General', 'FirstStartup', 'Yes')
         
