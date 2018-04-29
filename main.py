@@ -375,7 +375,7 @@ class DeflectouchWidget(Widget):
                     color.pop()
                 
                 if color == [0, 0, 0]:
-                    # create obstacle brick on white pixels
+                    # create obstacle brick on black pixels
                     image = Image(source=('graphics/brick%d.png' % randint(1, 4)),
                                   x = LEVEL_OFFSET[0] + x * BRICK_WIDTH,
                                   y = LEVEL_OFFSET[1] + (LEVEL_HEIGHT-1-y) * BRICK_WIDTH,
@@ -404,6 +404,7 @@ class DeflectouchWidget(Widget):
                 # if there was transparency stored in the image, cut it.
                 color.pop()
                     
+            # add max_stock for each red pixel
             if color == [1, 0, 0]:
                 self.max_stock += 1
         
