@@ -1,7 +1,7 @@
 '''
 Deflectouch
 
-Copyright (C) 2012  Cyril Stoller
+Copyright (C) 2012-2024 Cyril Stoller
 
 For comments, suggestions or other messages, contact me at:
 <cyril.stoller@gmail.com>
@@ -125,7 +125,7 @@ class Deflector(Scatter):
         self.length = self.length_origin * self.scale
         try:
             self.parent.parent.stockbar.recalculate_stock()
-        except Exception, e:
+        except Exception as e:
             return
         # get the current stock from the root widget:
         current_stock = self.parent.parent.stockbar.width
@@ -181,7 +181,7 @@ class Deflector(Scatter):
     ####################################
     '''
     def on_touch_down(self, touch):
-        if self.parent.parent.app.sound['deflector_down'].status != 'play':
+        if self.parent.parent.app.sound['deflector_down'].state != 'play':
             self.parent.parent.app.sound['deflector_down'].play()
         
         return super(Deflector, self).on_touch_down(touch)
@@ -200,7 +200,7 @@ class Deflector(Scatter):
             return True
         
         if self.parent != None and self.collide_grab_point(*touch.pos):
-            if self.parent.parent.app.sound['deflector_up'].status != 'play':
+            if self.parent.parent.app.sound['deflector_up'].state != 'play':
                 self.parent.parent.app.sound['deflector_up'].play()
         
         return super(Deflector, self).on_touch_up(touch)

@@ -1,7 +1,7 @@
 '''
 Deflectouch
 
-Copyright (C) 2012 2015  Cyril Stoller
+Copyright (C) 2012-2024 Cyril Stoller
 
 For comments, suggestions or other messages, contact me at:
 <cyril.stoller@gmail.com>
